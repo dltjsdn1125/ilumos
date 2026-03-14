@@ -1,0 +1,798 @@
+'================================================================================
+' ThisWorkbook 모듈
+' - Workbook_Open/Close/SheetActivate/SheetBeforeDelete 이벤트
+' - 시트 이름 보호 (숨김시트 __WB_SheetNames 기반)
+' - 현재월_생산현황, 원단_현재월_생산현황 (일일생산DB → 설비호기/원단Co별 집계 → 새 워크북)
+' ※ 부자재관리 관련 Public Sub/Function은 부자재관리 표준 모듈에 통합
+'================================================================================
+
+Option Explicit
+
+'================================================================================
+' 현재월 생산현황: 일일생산DB 시트에서 현재 월 완제품 데이터를 설비호기별 집계 → 새 워크북에 써머리·표·차트 (저장 안 함)
+'================================================================================
+Public Sub 현재월_생산현황()
+    Const DB_시트 As String = "일일생산DB"
+    Dim wsDB As Worksheet, wbNew As Workbook, wsNew As Worksheet
+    Dim 현재년 As Long, 현재월 As Long
+    Dim lastRow As Long, r As Long
+    Dim 일수 As Long, dayCount As Long
+    Dim 호기목록(1 To 5) As String
+    Dim 항목목록() As String
+    Dim 호기 As String, 항목 As String
+    Dim dayVals() As Long
+    Dim i As Long, j As Long, w As Long, 주시작 As Long, 주끝 As Long
+    Dim 합계 As Double, 평균 As Double, 주합계 As Double, 주평균 As Double
+    Dim outRow As Long, outCol As Long
+    Dim msg As String
+    Dim arr As Variant
+    Dim 구분원본 As String, 구분정규 As String, 작성일v As Variant, d일 As Long
+    Dim 생산량v As Double, 원지v As Double
+    Dim 집계딕 As Object   ' Key: "호기|일|항목인덱스" (0=생산량, 1=원지기준소요량), Value: 합계
+    Dim k As String
+
+    On Error Resume Next
+    Set wsDB = ThisWorkbook.Worksheets(DB_시트)
+    On Error GoTo 0
+    If wsDB Is Nothing Then
+        MsgBox "일일생산DB 시트를 찾을 수 없습니다.", vbExclamation
+        Exit Sub
+    End If
+
+    Dim inp연 As String, inp월 As String
+    inp연 = Trim(InputBox("년도를 입력하세요 (예: 2026)", "년·월 선택", CStr(Year(Date))))
+    If inp연 = "" Then Exit Sub
+    현재년 = CLng(val(inp연))
+    If 현재년 < 2000 Or 현재년 > 2100 Then
+        MsgBox "년도는 2000~2100 사이로 입력해 주세요.", vbExclamation
+        Exit Sub
+    End If
+    inp월 = Trim(InputBox("월을 입력하세요 (1-12)", "년·월 선택", CStr(Month(Date))))
+    If inp월 = "" Then Exit Sub
+    현재월 = CLng(val(inp월))
+    If 현재월 < 1 Or 현재월 > 12 Then
+        MsgBox "월은 1~12 사이로 입력해 주세요.", vbExclamation
+        Exit Sub
+    End If
+
+    ' 해당 월 일수 (1일~말일)
+    일수 = Day(DateSerial(현재년, 현재월 + 1, 0))
+    dayCount = 일수
+    ReDim dayVals(1 To dayCount)
+    For i = 1 To dayCount
+        dayVals(i) = i
+    Next i
+
+    lastRow = wsDB.Cells(wsDB.Rows.Count, 1).End(xlUp).Row
+    If lastRow < 2 Then
+        MsgBox "일일생산DB 시트에 데이터가 없습니다.", vbExclamation
+        Exit Sub
+    End If
+
+    ' 일일생산DB 배열 읽기: A=생산일(1), B=ID(2), D=레코드_유형(4), I=완제품_구분(9), L=생산량_BOX(12), M=원지기준소요량(13)
+    arr = wsDB.Range(wsDB.Cells(2, 1), wsDB.Cells(lastRow, 13)).Value
+    Set 집계딕 = CreateObject("Scripting.Dictionary")
+    For r = 1 To UBound(arr, 1)
+        If Trim(CStr(arr(r, 4))) <> "완제품" Then GoTo NextRowDB
+        작성일v = arr(r, 1)
+        If Not IsDate(작성일v) Then GoTo NextRowDB
+        If Year(CDate(작성일v)) <> 현재년 Or Month(CDate(작성일v)) <> 현재월 Then GoTo NextRowDB
+        구분원본 = Trim(CStr(arr(r, 9)))
+        If 구분원본 = "" Then 구분원본 = "KT"
+        If UCase(left(구분원본, 2)) = "KT" Then
+            구분정규 = "KT"
+        ElseIf UCase(left(구분원본, 3)) = "JRT" Then
+            구분정규 = "JRT"
+        ElseIf UCase(left(구분원본, 2)) = "WT" Then
+            구분정규 = "WT"
+        ElseIf UCase(left(구분원본, 2)) = "FT" Then
+            구분정규 = "FT"
+        ElseIf UCase(left(구분원본, 2)) = "BT" Then
+            구분정규 = "BT"
+        Else
+            구분정규 = "KT"
+        End If
+        d일 = Day(CDate(작성일v))
+        생산량v = 0: If IsNumeric(arr(r, 12)) Then 생산량v = CDbl(arr(r, 12))
+        원지v = 0: If IsNumeric(arr(r, 13)) Then 원지v = CDbl(arr(r, 13))
+        k = 구분정규 & "|" & d일 & "|0"
+        If 집계딕.exists(k) Then 집계딕(k) = CDbl(집계딕(k)) + 생산량v Else 집계딕.Add k, 생산량v
+        k = 구분정규 & "|" & d일 & "|1"
+        If 집계딕.exists(k) Then 집계딕(k) = CDbl(집계딕(k)) + 원지v Else 집계딕.Add k, 원지v
+NextRowDB:
+    Next r
+
+    호기목록(1) = "KT": 호기목록(2) = "JRT": 호기목록(3) = "WT": 호기목록(4) = "FT": 호기목록(5) = "BT"
+    항목목록 = Split("생산량(BOX),원지기준소요량", ",")
+
+    Application.ScreenUpdating = False
+    Set wbNew = Workbooks.Add
+    Set wsNew = wbNew.Sheets(1)
+    wsNew.Name = "현재월생산현황"
+    On Error Resume Next
+    wbNew.Windows(1).DisplayGridlines = False
+    On Error GoTo 0
+
+    Const 타이틀행 As Long = 1
+    Const 헤더행 As Long = 3
+    outRow = 헤더행
+    wsNew.Cells(타이틀행, 1).Value = 현재년 & "년 " & 현재월 & "월 설비호기별 생산 현황"
+    wsNew.Cells(타이틀행, 1).Font.Size = 20
+    wsNew.Cells(타이틀행, 1).Font.Bold = True
+    wsNew.Cells(타이틀행, 1).Font.Name = "Microsoft GothicNeo"
+    outRow = outRow + 1
+
+    outCol = 1
+    wsNew.Cells(헤더행, outCol).Value = "설비호기": outCol = outCol + 1
+    wsNew.Cells(헤더행, outCol).Value = "항목": outCol = outCol + 1
+    For i = 1 To dayCount
+        wsNew.Cells(헤더행, outCol + i - 1).Value = dayVals(i) & "일"
+    Next i
+    outCol = outCol + dayCount
+    wsNew.Cells(헤더행, outCol).Value = "주1평균": wsNew.Cells(헤더행, outCol + 1).Value = "주2평균": wsNew.Cells(헤더행, outCol + 2).Value = "주3평균"
+    wsNew.Cells(헤더행, outCol + 3).Value = "주4평균": wsNew.Cells(헤더행, outCol + 4).Value = "주5평균"
+    wsNew.Cells(헤더행, outCol + 5).Value = "월합계": wsNew.Cells(헤더행, outCol + 6).Value = "월평균"
+    outRow = 4
+
+    Dim 호기별시작행(1 To 5) As Long, 호기별끝행(1 To 5) As Long, 호기별이름(1 To 5) As String, 호기개수 As Long
+    Dim 항목인덱스 As Long, 일값 As Double
+    호기개수 = 0
+
+    For i = 1 To 5
+        호기 = 호기목록(i)
+        호기개수 = 호기개수 + 1
+        호기별이름(호기개수) = 호기
+        호기별시작행(호기개수) = outRow
+        For j = 0 To UBound(항목목록)
+            항목 = Trim(항목목록(j))
+            항목인덱스 = j
+            wsNew.Cells(outRow, 1).Value = 호기
+            wsNew.Cells(outRow, 2).Value = 항목
+            합계 = 0
+            For w = 1 To dayCount
+                k = 호기 & "|" & w & "|" & 항목인덱스
+                일값 = 0
+                If 집계딕.exists(k) Then 일값 = CDbl(집계딕(k))
+                wsNew.Cells(outRow, 2 + w).Value = 일값
+                합계 = 합계 + 일값
+            Next w
+            For w = 1 To 5
+                주합계 = 0: 주시작 = (w - 1) * 7 + 1: 주끝 = w * 7
+                If 주시작 > dayCount Then Exit For
+                If 주끝 > dayCount Then 주끝 = dayCount
+                For r = 주시작 To 주끝
+                    If IsNumeric(wsNew.Cells(outRow, 2 + r).Value) Then 주합계 = 주합계 + CDbl(wsNew.Cells(outRow, 2 + r).Value)
+                Next r
+                주평균 = IIf(주끝 - 주시작 + 1 > 0, 주합계 / (주끝 - 주시작 + 1), 0)
+                wsNew.Cells(outRow, 2 + dayCount + w).Value = Round(주평균, 2)
+            Next w
+            평균 = IIf(dayCount > 0, 합계 / dayCount, 0)
+            wsNew.Cells(outRow, 2 + dayCount + 6).Value = Round(합계, 2)
+            wsNew.Cells(outRow, 2 + dayCount + 7).Value = Round(평균, 2)
+            outRow = outRow + 1
+        Next j
+        호기별끝행(호기개수) = outRow - 1
+    Next i
+
+    Dim 테이블끝행 As Long, msgRow As Long
+    테이블끝행 = outRow - 1
+    msgRow = 테이블끝행 + 2
+    msg = "※ 본 데이터는 매크로 실행 시점(" & Format(Now, "yyyy-mm-dd hh:nn") & ") 기준으로 가공된 현황입니다. 저장은 사용자가 결정합니다."
+    wsNew.Cells(msgRow, 1).Value = msg
+    wsNew.Cells(msgRow, 1).Font.Italic = True
+    wsNew.Cells(msgRow, 1).Font.Size = 9
+    wsNew.Cells(msgRow, 1).Font.Name = "Microsoft GothicNeo"
+
+    Dim tblRng As Range
+    Set tblRng = wsNew.Range(wsNew.Cells(타이틀행, 1), wsNew.Cells(테이블끝행, 2 + dayCount + 7))
+    tblRng.Font.Name = "Microsoft GothicNeo"
+    wsNew.Range(wsNew.Cells(헤더행, 1), wsNew.Cells(헤더행, 2 + dayCount + 7)).Font.Bold = True
+    With wsNew.Range(wsNew.Cells(헤더행, 1), wsNew.Cells(테이블끝행, 2 + dayCount + 7)).Borders
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+        .color = RGB(192, 192, 192)
+    End With
+    wsNew.Rows(헤더행).RowHeight = 30
+    wsNew.Range(wsNew.Cells(헤더행, 1), wsNew.Cells(헤더행, 2 + dayCount)).Interior.color = RGB(233, 249, 153)
+    wsNew.Range(wsNew.Cells(헤더행, 2 + dayCount + 1), wsNew.Cells(헤더행, 2 + dayCount + 7)).Interior.color = RGB(238, 250, 194)
+    wsNew.Range(wsNew.Cells(헤더행 + 1, 2 + dayCount + 1), wsNew.Cells(테이블끝행, 2 + dayCount + 7)).Interior.color = RGB(255, 255, 231)
+    wsNew.Range(wsNew.Cells(4, 1), wsNew.Cells(테이블끝행, 1)).Interior.color = RGB(237, 250, 160)
+    wsNew.Range(wsNew.Cells(4, 2), wsNew.Cells(테이블끝행, 2)).Interior.color = RGB(248, 253, 215)
+    Dim 매크로_DisplayAlerts As Boolean
+    매크로_DisplayAlerts = Application.DisplayAlerts
+    Application.DisplayAlerts = False
+    For i = 1 To 호기개수
+        If 호기별끝행(i) >= 호기별시작행(i) Then
+            On Error Resume Next
+            wsNew.Range(wsNew.Cells(호기별시작행(i), 1), wsNew.Cells(호기별끝행(i), 1)).Merge
+            wsNew.Range(wsNew.Cells(호기별시작행(i), 1), wsNew.Cells(호기별끝행(i), 1)).HorizontalAlignment = xlCenter
+            wsNew.Range(wsNew.Cells(호기별시작행(i), 1), wsNew.Cells(호기별끝행(i), 1)).VerticalAlignment = xlCenter
+            On Error GoTo 0
+        End If
+    Next i
+    Application.DisplayAlerts = 매크로_DisplayAlerts
+
+    For i = 1 To 호기개수
+        If 호기별끝행(i) >= 호기별시작행(i) Then
+            With wsNew.Range(wsNew.Cells(호기별시작행(i), 1), wsNew.Cells(호기별시작행(i), 2 + dayCount + 7)).Borders(xlEdgeTop)
+                .LineStyle = xlContinuous
+                .Weight = xlMedium
+                .color = RGB(128, 128, 128)
+            End With
+            With wsNew.Range(wsNew.Cells(호기별끝행(i), 1), wsNew.Cells(호기별끝행(i), 2 + dayCount + 7)).Borders(xlEdgeBottom)
+                .LineStyle = xlContinuous
+                .Weight = xlMedium
+                .color = RGB(128, 128, 128)
+            End With
+        End If
+    Next i
+
+    wsNew.Cells.Columns.AutoFit
+    wsNew.Columns("A:A").ColumnWidth = 12
+
+    Const chH As Double = 283.5   ' 10cm
+    Const chW As Double = 680.4  ' 24cm
+    Const 차트간격 As Double = 28.35  ' 1cm
+    Dim chLeft As Double, chTop As Double
+    chTop = wsNew.Cells(msgRow + 2, 1).top
+    chLeft = wsNew.Cells(msgRow + 2, 1).left
+    Dim ch As ChartObject, h As Long, s As Long, 색상표3(1 To 6) As Long
+    색상표3(1) = RGB(240, 125, 50)
+    색상표3(2) = RGB(252, 194, 0)
+    색상표3(3) = RGB(119, 186, 70)
+    색상표3(4) = RGB(172, 70, 48)
+    색상표3(5) = RGB(155, 130, 40)
+    색상표3(6) = RGB(60, 120, 50)
+    For h = 1 To 호기개수
+        If 호기별끝행(h) < 호기별시작행(h) Then GoTo NextChart
+        On Error Resume Next
+        Set ch = wsNew.ChartObjects.Add(chLeft, chTop, chW, chH)
+        ch.Chart.SetSourceData Source:=wsNew.Range(wsNew.Cells(호기별시작행(h), 1), wsNew.Cells(호기별끝행(h), 2 + dayCount)), PlotBy:=xlRows
+        ch.Chart.ChartType = xlColumnStacked
+        On Error Resume Next
+        ch.Chart.ChartStyle = 201
+        On Error GoTo 0
+        ch.Chart.SetElement 302
+        ch.Chart.HasTitle = True
+        ch.Chart.ChartTitle.Text = 호기별이름(h) & " 일별 현황"
+        ch.Chart.ChartTitle.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.Axes(xlCategory).HasTitle = False
+        ch.Chart.Axes(xlValue).HasTitle = False
+        ch.Chart.Axes(xlCategory).TickLabels.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.Axes(xlValue).TickLabels.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.Legend.position = xlLegendPositionBottom
+        ch.Chart.Legend.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.ChartGroups(1).Overlap = 100
+        ch.Chart.ChartGroups(1).GapWidth = 50
+        For s = 1 To ch.Chart.SeriesCollection.Count
+            ch.Chart.SeriesCollection(s).Format.Fill.ForeColor.RGB = 색상표3(((s - 1) Mod 6) + 1)
+        Next s
+        If (h Mod 2) = 1 Then
+            chLeft = chLeft + chW + 차트간격
+        Else
+            chLeft = wsNew.Cells(msgRow + 2, 1).left
+            chTop = chTop + chH + 차트간격
+        End If
+        On Error GoTo 0
+NextChart:
+    Next h
+
+    On Error Resume Next
+    wsNew.Activate
+    wsNew.Range("Q4").Select
+    ActiveWindow.FreezePanes = True
+    On Error GoTo 0
+
+    Application.ScreenUpdating = True
+    MsgBox "현재월 생산현황을 새 워크북으로 생성했습니다." & vbCrLf & _
+           "저장 여부는 사용자가 결정하세요.", vbInformation, "현재월 생산현황"
+End Sub
+
+'================================================================================
+' 원단 현재월 생산현황: 일일생산DB 시트에서 현재 월 원지 데이터를 원단(Co)별 집계 → 새 워크북에 써머리·표·차트 (저장 안 함)
+' - 현재월_생산현황과 동일한 구조 (설비호기 → 원단Co, 생산량·원지 → 롤수·Kg)
+'================================================================================
+Public Sub 원단_현재월_생산현황()
+    Const DB_시트 As String = "일일생산DB"
+    Const col날짜 As Long = 1
+    Const col레코드유형 As Long = 4
+    Const col원지KG As Long = 8
+    Const col원지Co As Long = 70
+    Dim wsDB As Worksheet, wbNew As Workbook, wsNew As Worksheet
+    Dim 현재년 As Long, 현재월 As Long
+    Dim lastRow As Long, r As Long
+    Dim 일수 As Long, dayCount As Long
+    Dim Co목록 As Object
+    Dim Co정렬키() As String
+    Dim 항목목록() As String
+    Dim Co As String, 항목 As String
+    Dim dayVals() As Long
+    Dim i As Long, j As Long, w As Long, 주시작 As Long, 주끝 As Long
+    Dim 합계 As Double, 평균 As Double, 주합계 As Double, 주평균 As Double
+    Dim outRow As Long, outCol As Long
+    Dim msg As String
+    Dim arr As Variant
+    Dim 작성일v As Variant, d일 As Long
+    Dim kgVal As Double
+    Dim 집계딕 As Object   ' Key: "Co|일|항목인덱스" (0=롤수, 1=Kg), Value: 합계
+    Dim k As String
+    Dim CoVal As Variant, CoKey As String
+    Dim key As Variant
+    Dim Co명딕 As Object
+    Dim wsRaw As Worksheet
+    Dim Co표시명 As String
+    Dim rawLast As Long, ri As Long, rCoVal As String, r원단명 As String
+
+    On Error Resume Next
+    Set wsDB = ThisWorkbook.Worksheets(DB_시트)
+    On Error GoTo 0
+    If wsDB Is Nothing Then
+        MsgBox "일일생산DB 시트를 찾을 수 없습니다.", vbExclamation
+        Exit Sub
+    End If
+
+    Dim inp연 As String, inp월 As String
+    inp연 = Trim(InputBox("년도를 입력하세요 (예: 2026)", "년·월 선택", CStr(Year(Date))))
+    If inp연 = "" Then Exit Sub
+    현재년 = CLng(val(inp연))
+    If 현재년 < 2000 Or 현재년 > 2100 Then
+        MsgBox "년도는 2000~2100 사이로 입력해 주세요.", vbExclamation
+        Exit Sub
+    End If
+    inp월 = Trim(InputBox("월을 입력하세요 (1-12)", "년·월 선택", CStr(Month(Date))))
+    If inp월 = "" Then Exit Sub
+    현재월 = CLng(val(inp월))
+    If 현재월 < 1 Or 현재월 > 12 Then
+        MsgBox "월은 1~12 사이로 입력해 주세요.", vbExclamation
+        Exit Sub
+    End If
+
+    일수 = Day(DateSerial(현재년, 현재월 + 1, 0))
+    dayCount = 일수
+    ReDim dayVals(1 To dayCount)
+    For i = 1 To dayCount
+        dayVals(i) = i
+    Next i
+
+    lastRow = wsDB.Cells(wsDB.Rows.Count, 1).End(xlUp).Row
+    If lastRow < 2 Then
+        MsgBox "일일생산DB 시트에 데이터가 없습니다.", vbExclamation
+        Exit Sub
+    End If
+
+    ' 일일생산DB 배열: A(1)=생산일, D(4)=레코드유형, H(8)=원지KG, BR(70)=원지Co
+    arr = wsDB.Range(wsDB.Cells(2, 1), wsDB.Cells(lastRow, col원지Co)).Value
+    Set 집계딕 = CreateObject("Scripting.Dictionary")
+    Set Co목록 = CreateObject("Scripting.Dictionary")
+
+    ' Raw data H열(Co번호) → I열(원단명) 매핑 딕셔너리 구성
+    Set Co명딕 = CreateObject("Scripting.Dictionary")
+    On Error Resume Next
+    Set wsRaw = ThisWorkbook.Worksheets("Raw data")
+    On Error GoTo 0
+    If Not wsRaw Is Nothing Then
+        rawLast = wsRaw.Cells(wsRaw.Rows.Count, 8).End(xlUp).Row
+        For ri = 3 To rawLast
+            rCoVal = Trim(CStr(wsRaw.Cells(ri, 8).Value))
+            r원단명 = Trim(CStr(wsRaw.Cells(ri, 9).Value))
+            If rCoVal <> "" And r원단명 <> "" Then
+                If IsNumeric(rCoVal) And CLng(val(rCoVal)) > 0 Then rCoVal = Format(CLng(val(rCoVal)), "00")
+                If Not Co명딕.exists(rCoVal) Then Co명딕.Add rCoVal, r원단명
+            End If
+        Next ri
+    End If
+    For r = 1 To UBound(arr, 1)
+        If Trim(CStr(arr(r, col레코드유형))) <> "원지" Then GoTo NextRow원지
+        작성일v = arr(r, col날짜)
+        If Not IsDate(작성일v) Then GoTo NextRow원지
+        If Year(CDate(작성일v)) <> 현재년 Or Month(CDate(작성일v)) <> 현재월 Then GoTo NextRow원지
+        CoVal = arr(r, col원지Co)
+        If IsEmpty(CoVal) Or IsError(CoVal) Then GoTo NextRow원지
+        CoKey = Trim(CStr(CoVal))
+        If CoKey = "" Then GoTo NextRow원지
+        If IsNumeric(CoKey) And CLng(val(CoKey)) > 0 Then CoKey = Format(CLng(val(CoKey)), "00")
+        kgVal = 0
+        If col원지KG <= UBound(arr, 2) And IsNumeric(arr(r, col원지KG)) Then kgVal = CDbl(arr(r, col원지KG))
+        If kgVal = 0 Then GoTo NextRow원지
+        If Not Co목록.exists(CoKey) Then Co목록.Add CoKey, CLng(val(CoKey))
+        d일 = Day(CDate(작성일v))
+        k = CoKey & "|" & d일 & "|0"
+        If 집계딕.exists(k) Then 집계딕(k) = CLng(집계딕(k)) + 1 Else 집계딕.Add k, 1
+        k = CoKey & "|" & d일 & "|1"
+        If 집계딕.exists(k) Then 집계딕(k) = CDbl(집계딕(k)) + kgVal Else 집계딕.Add k, kgVal
+NextRow원지:
+    Next r
+
+    If Co목록.Count = 0 Then
+        MsgBox "선택한 월(" & 현재년 & "년 " & 현재월 & "월)에 원지 데이터가 없습니다.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Co 정렬 (숫자 순)
+    ReDim Co정렬키(1 To Co목록.Count)
+    j = 0
+    For Each key In Co목록.keys
+        j = j + 1
+        Co정렬키(j) = key
+    Next key
+    For i = 1 To UBound(Co정렬키) - 1
+        For j = i + 1 To UBound(Co정렬키)
+            If Co목록(Co정렬키(i)) > Co목록(Co정렬키(j)) Then
+                CoKey = Co정렬키(i): Co정렬키(i) = Co정렬키(j): Co정렬키(j) = CoKey
+            End If
+        Next j
+    Next i
+
+    항목목록 = Split("롤수,Kg", ",")
+
+    Application.ScreenUpdating = False
+    Set wbNew = Workbooks.Add
+    Set wsNew = wbNew.Sheets(1)
+    wsNew.Name = "원단현재월생산현황"
+    On Error Resume Next
+    wbNew.Windows(1).DisplayGridlines = False
+    On Error GoTo 0
+
+    Const 타이틀행 As Long = 1
+    Const 헤더행 As Long = 3
+    outRow = 헤더행
+    wsNew.Cells(타이틀행, 1).Value = 현재년 & "년 " & 현재월 & "월 원단(Co)별 생산 현황"
+    wsNew.Cells(타이틀행, 1).Font.Size = 20
+    wsNew.Cells(타이틀행, 1).Font.Bold = True
+    wsNew.Cells(타이틀행, 1).Font.Name = "Microsoft GothicNeo"
+    outRow = outRow + 1
+
+    outCol = 1
+    wsNew.Cells(헤더행, outCol).Value = "원단명": outCol = outCol + 1
+    wsNew.Cells(헤더행, outCol).Value = "항목": outCol = outCol + 1
+    For i = 1 To dayCount
+        wsNew.Cells(헤더행, outCol + i - 1).Value = dayVals(i) & "일"
+    Next i
+    outCol = outCol + dayCount
+    wsNew.Cells(헤더행, outCol).Value = "주1평균": wsNew.Cells(헤더행, outCol + 1).Value = "주2평균": wsNew.Cells(헤더행, outCol + 2).Value = "주3평균"
+    wsNew.Cells(헤더행, outCol + 3).Value = "주4평균": wsNew.Cells(헤더행, outCol + 4).Value = "주5평균"
+    wsNew.Cells(헤더행, outCol + 5).Value = "월합계": wsNew.Cells(헤더행, outCol + 6).Value = "월평균"
+    outRow = 4
+
+    Dim Co별시작행() As Long, Co별끝행() As Long, Co별이름() As String, Co개수 As Long
+    Dim 항목인덱스 As Long, 일값 As Double
+    Co개수 = UBound(Co정렬키)
+    ReDim Co별시작행(1 To Co개수): ReDim Co별끝행(1 To Co개수): ReDim Co별이름(1 To Co개수)
+
+    For i = 1 To Co개수
+        Co = Co정렬키(i)
+        If Co명딕.exists(Co) Then Co표시명 = Co명딕(Co) Else Co표시명 = Co
+        Co별이름(i) = Co표시명
+        Co별시작행(i) = outRow
+        For j = 0 To UBound(항목목록)
+            항목 = Trim(항목목록(j))
+            항목인덱스 = j
+            wsNew.Cells(outRow, 1).Value = Co표시명
+            wsNew.Cells(outRow, 2).Value = 항목
+            합계 = 0
+            For w = 1 To dayCount
+                k = Co & "|" & w & "|" & 항목인덱스
+                일값 = 0
+                If 집계딕.exists(k) Then 일값 = CDbl(집계딕(k))
+                wsNew.Cells(outRow, 2 + w).Value = 일값
+                합계 = 합계 + 일값
+            Next w
+            For w = 1 To 5
+                주합계 = 0: 주시작 = (w - 1) * 7 + 1: 주끝 = w * 7
+                If 주시작 > dayCount Then Exit For
+                If 주끝 > dayCount Then 주끝 = dayCount
+                For r = 주시작 To 주끝
+                    If IsNumeric(wsNew.Cells(outRow, 2 + r).Value) Then 주합계 = 주합계 + CDbl(wsNew.Cells(outRow, 2 + r).Value)
+                Next r
+                주평균 = IIf(주끝 - 주시작 + 1 > 0, 주합계 / (주끝 - 주시작 + 1), 0)
+                wsNew.Cells(outRow, 2 + dayCount + w).Value = Round(주평균, 2)
+            Next w
+            평균 = IIf(dayCount > 0, 합계 / dayCount, 0)
+            wsNew.Cells(outRow, 2 + dayCount + 6).Value = Round(합계, 2)
+            wsNew.Cells(outRow, 2 + dayCount + 7).Value = Round(평균, 2)
+            outRow = outRow + 1
+        Next j
+        Co별끝행(i) = outRow - 1
+    Next i
+
+    Dim 테이블끝행 As Long, msgRow As Long
+    테이블끝행 = outRow - 1
+    msgRow = 테이블끝행 + 2
+    msg = "※ 본 데이터는 매크로 실행 시점(" & Format(Now, "yyyy-mm-dd hh:nn") & ") 기준으로 가공된 현황입니다. 저장은 사용자가 결정합니다."
+    wsNew.Cells(msgRow, 1).Value = msg
+    wsNew.Cells(msgRow, 1).Font.Italic = True
+    wsNew.Cells(msgRow, 1).Font.Size = 9
+    wsNew.Cells(msgRow, 1).Font.Name = "Microsoft GothicNeo"
+
+    Dim tblRng As Range
+    Set tblRng = wsNew.Range(wsNew.Cells(타이틀행, 1), wsNew.Cells(테이블끝행, 2 + dayCount + 7))
+    tblRng.Font.Name = "Microsoft GothicNeo"
+    wsNew.Range(wsNew.Cells(헤더행, 1), wsNew.Cells(헤더행, 2 + dayCount + 7)).Font.Bold = True
+    With wsNew.Range(wsNew.Cells(헤더행, 1), wsNew.Cells(테이블끝행, 2 + dayCount + 7)).Borders
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+        .color = RGB(192, 192, 192)
+    End With
+    wsNew.Rows(헤더행).RowHeight = 30
+    wsNew.Range(wsNew.Cells(헤더행, 1), wsNew.Cells(헤더행, 2 + dayCount)).Interior.color = RGB(233, 249, 153)
+    wsNew.Range(wsNew.Cells(헤더행, 2 + dayCount + 1), wsNew.Cells(헤더행, 2 + dayCount + 7)).Interior.color = RGB(238, 250, 194)
+    wsNew.Range(wsNew.Cells(헤더행 + 1, 2 + dayCount + 1), wsNew.Cells(테이블끝행, 2 + dayCount + 7)).Interior.color = RGB(255, 255, 231)
+    wsNew.Range(wsNew.Cells(4, 1), wsNew.Cells(테이블끝행, 1)).Interior.color = RGB(237, 250, 160)
+    wsNew.Range(wsNew.Cells(4, 2), wsNew.Cells(테이블끝행, 2)).Interior.color = RGB(248, 253, 215)
+    Dim 매크로_DisplayAlerts As Boolean
+    매크로_DisplayAlerts = Application.DisplayAlerts
+    Application.DisplayAlerts = False
+    For i = 1 To Co개수
+        If Co별끝행(i) >= Co별시작행(i) Then
+            On Error Resume Next
+            wsNew.Range(wsNew.Cells(Co별시작행(i), 1), wsNew.Cells(Co별끝행(i), 1)).Merge
+            wsNew.Range(wsNew.Cells(Co별시작행(i), 1), wsNew.Cells(Co별끝행(i), 1)).HorizontalAlignment = xlCenter
+            wsNew.Range(wsNew.Cells(Co별시작행(i), 1), wsNew.Cells(Co별끝행(i), 1)).VerticalAlignment = xlCenter
+            On Error GoTo 0
+        End If
+    Next i
+    Application.DisplayAlerts = 매크로_DisplayAlerts
+
+    For i = 1 To Co개수
+        If Co별끝행(i) >= Co별시작행(i) Then
+            With wsNew.Range(wsNew.Cells(Co별시작행(i), 1), wsNew.Cells(Co별시작행(i), 2 + dayCount + 7)).Borders(xlEdgeTop)
+                .LineStyle = xlContinuous
+                .Weight = xlMedium
+                .color = RGB(128, 128, 128)
+            End With
+            With wsNew.Range(wsNew.Cells(Co별끝행(i), 1), wsNew.Cells(Co별끝행(i), 2 + dayCount + 7)).Borders(xlEdgeBottom)
+                .LineStyle = xlContinuous
+                .Weight = xlMedium
+                .color = RGB(128, 128, 128)
+            End With
+        End If
+    Next i
+
+    wsNew.Cells.Columns.AutoFit
+    wsNew.Columns("A:A").ColumnWidth = 20
+
+    Const chH As Double = 283.5
+    Const chW As Double = 680.4
+    Const 차트간격 As Double = 28.35
+    Dim chLeft As Double, chTop As Double
+    chTop = wsNew.Cells(msgRow + 2, 1).top
+    chLeft = wsNew.Cells(msgRow + 2, 1).left
+    Dim ch As ChartObject, h As Long, s As Long, 색상표3(1 To 6) As Long
+    색상표3(1) = RGB(240, 125, 50)
+    색상표3(2) = RGB(252, 194, 0)
+    색상표3(3) = RGB(119, 186, 70)
+    색상표3(4) = RGB(172, 70, 48)
+    색상표3(5) = RGB(155, 130, 40)
+    색상표3(6) = RGB(60, 120, 50)
+    For h = 1 To Co개수
+        If Co별끝행(h) < Co별시작행(h) Then GoTo NextChart원지
+        On Error Resume Next
+        Set ch = wsNew.ChartObjects.Add(chLeft, chTop, chW, chH)
+        ch.Chart.SetSourceData Source:=wsNew.Range(wsNew.Cells(Co별시작행(h), 1), wsNew.Cells(Co별끝행(h), 2 + dayCount)), PlotBy:=xlRows
+        ch.Chart.ChartType = xlColumnStacked
+        On Error Resume Next
+        ch.Chart.ChartStyle = 201
+        On Error GoTo 0
+        ch.Chart.SetElement 302
+        ch.Chart.HasTitle = True
+        ch.Chart.ChartTitle.Text = Co별이름(h) & " 일별 현황"
+        ch.Chart.ChartTitle.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.Axes(xlCategory).HasTitle = False
+        ch.Chart.Axes(xlValue).HasTitle = False
+        ch.Chart.Axes(xlCategory).TickLabels.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.Axes(xlValue).TickLabels.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.Legend.position = xlLegendPositionBottom
+        ch.Chart.Legend.Font.Name = "Microsoft GothicNeo"
+        ch.Chart.ChartGroups(1).Overlap = 100
+        ch.Chart.ChartGroups(1).GapWidth = 50
+        For s = 1 To ch.Chart.SeriesCollection.Count
+            ch.Chart.SeriesCollection(s).Format.Fill.ForeColor.RGB = 색상표3(((s - 1) Mod 6) + 1)
+        Next s
+        If (h Mod 2) = 1 Then
+            chLeft = chLeft + chW + 차트간격
+        Else
+            chLeft = wsNew.Cells(msgRow + 2, 1).left
+            chTop = chTop + chH + 차트간격
+        End If
+        On Error GoTo 0
+NextChart원지:
+    Next h
+
+    On Error Resume Next
+    wsNew.Activate
+    wsNew.Range("Q4").Select
+    ActiveWindow.FreezePanes = True
+    On Error GoTo 0
+
+    Application.ScreenUpdating = True
+    MsgBox "원단 현재월 생산현황을 새 워크북으로 생성했습니다." & vbCrLf & _
+           "저장 여부는 사용자가 결정하세요.", vbInformation, "원단 현재월 생산현황"
+End Sub
+
+'===== 기존 시트만 이름 변경/삭제 불가 (추가된 시트는 자유) =====
+' 숨김시트 __WB_SheetNames: A열=원래 시트명, B열=CodeName(시트 고유식별), C1=복원 실행 중이면 1
+' Open 시점에 있던 시트만 보호. 그 이후 추가한 시트는 이름 변경/삭제 가능.
+
+Private Sub 시트명_원래이름_저장()
+    Dim wsHide As Worksheet
+    Dim wsNew As Worksheet
+    Dim i As Long, n As Long
+    On Error Resume Next
+    Set wsHide = ThisWorkbook.Sheets("__WB_SheetNames")
+    If wsHide Is Nothing Then
+        Set wsNew = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
+        wsNew.Name = "__WB_SheetNames"
+        If Err.Number <> 0 Then
+            Set wsHide = ThisWorkbook.Sheets("__WB_SheetNames")
+            Application.DisplayAlerts = False
+            wsNew.Delete
+            Application.DisplayAlerts = True
+        Else
+            Set wsHide = wsNew
+        End If
+        If Not wsHide Is Nothing Then wsHide.Visible = xlSheetVeryHidden
+    End If
+    On Error GoTo 0
+    If wsHide Is Nothing Then Exit Sub
+    On Error Resume Next
+    wsHide.Unprotect "0205"
+    On Error GoTo 0
+    n = 0
+    For i = 1 To ThisWorkbook.Sheets.Count
+        n = n + 1
+        wsHide.Cells(n, 1).Value = ThisWorkbook.Sheets(i).Name
+        wsHide.Cells(n, 2).Value = ThisWorkbook.Sheets(i).codeName
+    Next i
+    wsHide.Cells(1, 3).Value = 0
+End Sub
+
+Private Sub 시트명_원래이름_복원()
+    Dim wsHide As Worksheet
+    Dim i As Long, r As Long
+    Dim codeName As String, vName As String
+    Dim lastRow As Long
+    On Error Resume Next
+    Set wsHide = ThisWorkbook.Sheets("__WB_SheetNames")
+    On Error GoTo 0
+    If wsHide Is Nothing Then Exit Sub
+    On Error Resume Next
+    wsHide.Unprotect "0205"
+    On Error GoTo 0
+    wsHide.Cells(1, 3).Value = 1
+    lastRow = wsHide.Cells(wsHide.Rows.Count, 2).End(xlUp).Row
+    If lastRow < 1 Then GoTo Done
+    For i = 1 To ThisWorkbook.Sheets.Count
+        codeName = ThisWorkbook.Sheets(i).codeName
+        For r = 1 To lastRow
+            If Trim(CStr(wsHide.Cells(r, 2).Value)) = codeName Then
+                vName = Trim(CStr(wsHide.Cells(r, 1).Value))
+                If Len(vName) > 0 And ThisWorkbook.Sheets(i).Name <> vName Then
+                    ThisWorkbook.Sheets(i).Name = vName
+                End If
+                Exit For
+            End If
+        Next r
+    Next i
+Done:
+    wsHide.Cells(1, 3).Value = 0
+End Sub
+
+Private Sub Workbook_SheetBeforeDelete(ByVal Sh As Object)
+    Dim wsHide As Worksheet
+    Dim r As Long, lastRow As Long
+    Dim codeName As String
+    On Error Resume Next
+    Set wsHide = ThisWorkbook.Sheets("__WB_SheetNames")
+    On Error GoTo 0
+    If wsHide Is Nothing Then Exit Sub
+    codeName = Sh.codeName
+    lastRow = wsHide.Cells(wsHide.Rows.Count, 2).End(xlUp).Row
+    For r = 1 To lastRow
+        If Trim(CStr(wsHide.Cells(r, 2).Value)) = codeName Then
+            MsgBox "기존 시트가 삭제됩니다. 삭제를 막으려면 통합문서 보호(구조 보호)를 사용하세요.", vbExclamation
+            Exit Sub
+        End If
+    Next r
+End Sub
+
+Private Sub Workbook_Open()
+    Dim origAlerts As Boolean, origScreen As Boolean
+    Dim ws As Worksheet
+    origAlerts = Application.DisplayAlerts
+    origScreen = Application.ScreenUpdating
+    Application.DisplayAlerts = False
+    Application.ScreenUpdating = False
+
+    ' 열기 암호 제거 (다음 열 때 암호 입력 불필요)
+    On Error Resume Next
+    If ThisWorkbook.Password <> "" Then
+        ThisWorkbook.Password = ""
+        ThisWorkbook.Save
+    End If
+    On Error GoTo 0
+
+    ' 통합문서 구조·시트 보호 자동 해제 (암호 0205, 비번 입력창 없음)
+    On Error Resume Next
+    If ThisWorkbook.ProtectStructure Then ThisWorkbook.Unprotect "0205"
+    For Each ws In ThisWorkbook.Worksheets
+        If ws.ProtectContents Then ws.Unprotect "0205"
+    Next ws
+    On Error GoTo 0
+
+    Call 시트명_원래이름_저장
+    On Error Resume Next
+    If Not ThisWorkbook.Worksheets("생산일보") Is Nothing Then
+        Application.Run "일일생산일보_시트보호_적용"
+    End If
+    Application.Run "시트_지정행_잠금적용"
+    On Error GoTo 0
+
+    ' 모든 시트: 지정된 셀잠금(Locked) 영역 자동 적용
+    On Error Resume Next
+    For Each ws In ThisWorkbook.Worksheets
+        If Not ws.ProtectContents Then
+            ws.Protect Password:="0205", DrawingObjects:=True, Contents:=True, Scenarios:=True, UserInterfaceOnly:=True
+        End If
+    Next ws
+    On Error GoTo 0
+
+    ' 통합문서 구조 보호 자동 재적용
+    On Error Resume Next
+    If Not ThisWorkbook.ProtectStructure Then
+        ThisWorkbook.Protect Password:="0205", Structure:=True, Windows:=False
+    End If
+    On Error GoTo 0
+
+    Application.ScreenUpdating = origScreen
+    Application.DisplayAlerts = origAlerts
+End Sub
+
+' ※ 원단관리: 유효성재적용+헤더보정 | Raw data: 원단_목록_RawData_갱신
+Private Sub Workbook_SheetActivate(ByVal Sh As Object)
+    Dim wsHide As Worksheet
+    On Error Resume Next
+    Set wsHide = ThisWorkbook.Sheets("__WB_SheetNames")
+    On Error GoTo 0
+    If wsHide Is Nothing Then
+    Else
+        If wsHide.Cells(1, 3).Value = 1 Then Exit Sub
+        Call 시트명_원래이름_복원
+    End If
+
+    ' 시트 선택 시 자동 잠금 적용 (지정된 셀에 대해 Locked + Protect 0205 통일)
+    On Error Resume Next
+    Application.Run "시트_지정행_잠금적용"
+    On Error GoTo 0
+
+    If Sh.Name = "생산일보" Then
+        On Error Resume Next
+        Application.Run "일일생산일보_시트보호_적용"
+        Application.Run "생산일보_제품유효성_적용"
+        On Error GoTo 0
+    ElseIf Sh.Name = "원단관리" Then
+        On Error Resume Next
+        Application.Run "원단관리_AB열_유효성_적용"
+        Application.Run "원단_셀보호_적용_무음", Sh
+        On Error GoTo 0
+    ElseIf Sh.Name = "Stock" Then
+        On Error Resume Next
+        Application.Run "Stock_시트_갱신"
+        On Error GoTo 0
+    ElseIf Sh.Name = "부자재관리" Then
+        On Error Resume Next
+        Application.Run "셀보호_적용_무음", Sh
+        On Error GoTo 0
+    ElseIf UCase(Trim(Sh.Name)) = "RAW DATA" Then
+        On Error Resume Next
+        Call RawData_D3_제품표준사양서_동기화
+        Application.Run "원단_목록_RawData_갱신"
+        On Error GoTo 0
+    End If
+End Sub
+
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    On Error Resume Next
+    Call 부자재관리_OnTime_모두취소
+    On Error GoTo 0
+End Sub
+

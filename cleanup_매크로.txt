@@ -1,0 +1,26 @@
+=== 92.xlsb 내부에서 실행하는 정리 매크로 ===
+
+1. Excel에서 92.xlsb 열기
+2. Alt+F11 (VBA 편집기)
+3. 왼쪽에서 "ThisWorkbook" 더블클릭
+4. 아래 코드 전체 복사해서 붙여넣기
+5. F5 또는 실행 버튼으로 CleanAllVBA 실행
+6. 끝나면 모듈 전부 삭제됨
+
+------ 아래 코드 ------
+
+Sub CleanAllVBA()
+    Dim i As Long
+    Dim comp As Object
+    Do
+        For i = ThisWorkbook.VBProject.VBComponents.Count To 1 Step -1
+            Set comp = ThisWorkbook.VBProject.VBComponents(i)
+            If comp.Type <> 100 Then
+                ThisWorkbook.VBProject.VBComponents.Remove comp
+                Exit For
+            End If
+        Next i
+    Loop Until i < 1
+    ThisWorkbook.Save
+    MsgBox "모듈/UserForm 전부 삭제 완료."
+End Sub
