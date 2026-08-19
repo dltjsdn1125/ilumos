@@ -1,0 +1,522 @@
+/* ==========================================================================
+   sections.css — page section layouts + the four source @keyframes
+   ========================================================================== */
+
+/* ── keyframes — verbatim from 02-source > keyframes_site ────────────────── */
+
+@keyframes spin {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes translateX {
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+[data-split] .split-line { display: block; }
+
+/* Pre-reveal state. Removed by motion.js once GSAP takes over, and skipped
+   entirely under reduced motion so text is never left invisible. */
+.js [data-reveal]:not(.is-revealed) { opacity: 0; }
+.js [data-split]:not(.is-revealed) { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal]:not(.is-revealed),
+  .js [data-split]:not(.is-revealed) { opacity: 1; visibility: visible; }
+}
+
+/* ── WebGL background layer ─────────────────────────────────────────────────
+   04-pages/home: ".unicorn__item" sits absolute/top:0 and stays put across all
+   21 scroll stops -> behaves as a fixed full-viewport backdrop behind everything.
+
+   SUBSTITUTE IMPLEMENTATION. The original is Unicorn Studio (compiled shaders,
+   scene ids id-wbf1qz4dw1aw8s1klbwd / id-l5ox3rrhz1vbx0l7hyp1) plus two opaque
+   Spline .splinecode scenes — all unrecoverable (07-audit > webgl-shaders).
+   assets/js/hero-gl.js draws a wireframe 3D star plus a pointer-following light
+   (project direction), honouring only the recorded canvas contract: webgl2, alpha,
+   full-viewport, 1x DPI. A stand-in, not a reproduction. See MISSING.md. */
+
+/* The layer carries its own black ground so the alpha canvas always composites
+   onto the same tone. Sections above it are translucent, so this field reads
+   faintly through the entire page — the hero simply dims it least. */
+.unicorn__item {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-webgl);
+  pointer-events: none;
+  overflow: hidden; /* clips the oversized grain layer */
+  background-color: var(--black);
+}
+
+.unicorn__item canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── hero scene: the forest the star field sits on ────────────────────────
+   `.unicorn__item` is `position:fixed` with `z-index:0`, so it opens its own
+   stacking context. A child at `z-index:-1` therefore paints AFTER the layer's
+   black ground but BEFORE the canvas — which is exactly the slot this photo
+   needs. No DOM-order coupling: hero-gl.js prepends the canvas, and this still
+   lands underneath it.
+
+   The photo choice does most of the work here, and it took three tries:
+     · fog shot (luma 75)   -> the additive star pass washed it into grey haze
+     · night silhouette (42) -> stars were perfect, but the trunks were EMPTY
+                                pixels near luma 0.04. Nothing to brighten.
+     · lit pine stand (66)   -> trunks carry real bark texture and tonal range,
+                                so they survive being darkened and still read.
+
+   With a lit source the job flips from lifting shadows to holding the frame
+   down, which is far easier to control — and it is why the multiply "canopy"
+   layer that the silhouette needed is gone. On this photo it was a no-op
+   (everything mapped past its white point) and pure dead weight. */
+.unicorn__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0; /* only the home hero turns this on */
+  background-image: url('/assets/images/hero-forest.webp');
+  background-size: cover;
+  background-position: 50% 62%;
+  /* Brightened. An earlier pass pushed this DOWN to 0.72 to protect the page's
+     dark tone, which buried the forest again — the same mistake in the opposite
+     direction. The page reads dark from the sections below and from the radial
+     scrim under the headline, so this layer does not have to be dim as well. */
+  filter: brightness(1.8) contrast(0.98) saturate(1.05);
+  /* Only a short fade under the fixed header bar. */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #000 15%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #000 15%);
+}
+
+/* Type protection, applied by POSITION so it does not flatten the whole forest.
+   The radial sits over the headline and lead, leaving the frame's edges and floor
+   — the densest stand of trunks — comparatively open. Stars are drawn on the
+   canvas ABOVE this layer, so darkening here costs the star field nothing. */
+.unicorn__scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      88% 86% at 28% 40%,
+      rgba(6, 6, 12, 0.52) 0%,
+      rgba(6, 6, 12, 0.3) 44%,
+      rgba(6, 6, 12, 0.04) 82%,
+      rgba(6, 6, 12, 0) 100%
+    ),
+    linear-gradient(to bottom, rgba(6, 6, 12, 0.24), rgba(6, 6, 12, 0) 34%, rgba(6, 6, 12, 0.05));
+}
+
+/* Home only. Sub-pages keep the plain star field — their `.page-hero` carries
+   its own type and a photo behind it would just be noise. */
+body.is-home .unicorn__scene { opacity: 1; }
+
+/* Reduced motion (and no-GSAP) never runs the hero pin, so nothing fades this
+   layer out — and the backdrop is fixed, so it would sit behind the whole
+   document at full strength. Dropped to a level that reads as atmosphere behind
+   the translucent sections instead of as a photo competing with them. This is
+   the same property the star field already has by design; the forest just needs
+   to be quieter about it. */
+@media (prefers-reduced-motion: reduce) {
+  body.is-home .unicorn__scene { opacity: 0.45; }
+}
+
+
+/* Static fallback painted underneath: shown when WebGL is unavailable, when the
+   context is lost, and under reduced motion. */
+.unicorn__fallback {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(46% 46% at 50% 44%, rgba(120, 118, 255, 0.20), transparent 72%),
+    radial-gradient(70% 60% at 50% 100%, rgba(60, 60, 110, 0.14), transparent 78%);
+}
+
+.unicorn__item[data-gl='on'] .unicorn__fallback { opacity: 0; transition: opacity 1s linear; }
+
+/* Fine grain over the line drawing — enough to kill banding in the halo,
+   light enough not to muddy 1px hairlines. */
+.unicorn__grain {
+  position: absolute;
+  inset: -50%;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 6s steps(6) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -2%); }
+  80% { transform: translate(3%, 1%); }
+}
+
+/* ── hero ────────────────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 7em;
+  padding-bottom: var(--space-md);
+  overflow: hidden;
+}
+
+/* The hero shows the star field at full strength; every block below dims it with
+   a translucent surface. The scrim here only protects the display type. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.08) 45%, rgba(0, 0, 0, 0.34));
+}
+
+.hero__inner { position: relative; z-index: 1; width: 100%; }
+
+.hero__eyebrow { margin-bottom: var(--space-md); }
+
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  /* 10em is the measured max hero word (146.2px @1315). The vh ceiling keeps all
+     three lines plus the CTA above the fold on short windows. */
+  font-size: min(var(--t-2xl), 15vh);
+  line-height: 0.88;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+}
+
+.hero__title span { display: block; }
+
+/* The middle of the three hero lines — the one that cycles through keywords.
+   Lime marks it as the line that moves; the outer two stay white. */
+.hero__scramble {
+  display: inline-block;
+  min-width: 8ch;
+  color: var(--accent-lime);
+}
+
+.hero__foot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--gap-large);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: var(--border-hairline);
+}
+
+/* vh ceilings keep the whole hero — headline, lead and CTA — above the fold on
+   wide-but-short windows, where the fluid unit (viewport/90) runs large. */
+.hero__lead {
+  max-width: 30ch;
+  font-size: min(var(--t-lead), 4.2vh);
+}
+
+.hero__actions { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
+
+.hero__foot-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-sm);
+}
+
+.hero__scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dim);
+}
+
+.hero__scroll svg { width: 1em; height: 1em; animation: bob 2s ease-in-out infinite; }
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(0.35em); }
+}
+
+@media screen and (max-width: 767px) {
+  .hero { padding-top: 7em; }
+  .hero__title { font-size: var(--t-2xl); }
+  .hero__foot { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .hero__foot-right { align-items: flex-start; }
+  .hero__scroll { display: none; }
+}
+
+/* ── section header ──────────────────────────────────────────────────────── */
+
+.section-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  gap: var(--gap-large);
+  margin-bottom: var(--space-lg);
+}
+
+.section-head--stack { grid-template-columns: minmax(0, 1fr); align-items: start; }
+
+.section-head__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-h2);
+  line-height: var(--lh-display);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  white-space: pre-line;
+}
+
+.section-head__eyebrow { margin-bottom: var(--space-sm); }
+.section-head__aside { max-width: 46ch; }
+
+@media screen and (max-width: 767px) {
+  .section-head { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── process ─────────────────────────────────────────────────────────────── */
+
+.process__list { border-top: var(--border-hairline); }
+
+.process__item {
+  display: grid;
+  grid-template-columns: 6em 1fr 1.2fr;
+  gap: var(--gap-large);
+  align-items: start;
+  padding: var(--space-lg) 0;
+  border-bottom: var(--border-hairline);
+}
+
+.process__num {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-h4);
+  line-height: 1;
+  color: var(--dimmer);
+}
+
+.process__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-h4);
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.process__body { color: var(--dim); max-width: 52ch; }
+
+@media screen and (max-width: 767px) {
+  .process__item { grid-template-columns: 3.2em 1fr; gap: var(--space-sm); }
+  .process__body { grid-column: 2; }
+}
+
+/* ── FAQ ─────────────────────────────────────────────────────────────────── */
+
+.faq__grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: var(--gap-large);
+  align-items: start;
+}
+
+.faq__aside { position: sticky; top: 9em; }
+
+/* The live page's single <h1> sits on this FAQ CTA block, not the hero
+   (04-pages/home > a11y). Reproduced, including the sentence-case exception. */
+.faq__h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--t-h2);
+  line-height: 1.05;
+  text-transform: none;
+  letter-spacing: -0.02em;
+}
+
+@media screen and (max-width: 991px) {
+  .faq__grid { grid-template-columns: minmax(0, 1fr); }
+  .faq__aside { position: static; }
+}
+
+/* ── contact ─────────────────────────────────────────────────────────────── */
+
+.contact { position: relative; overflow: hidden; }
+
+.contact__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-xl);
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  white-space: pre-line;
+}
+
+.contact__detail-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap-reg);
+  margin-top: var(--space-lg);
+}
+
+.contact__detail dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dimmer);
+  margin-bottom: var(--space-3xs);
+}
+
+.contact__detail dd { font-size: var(--t-sm); }
+
+@media screen and (max-width: 767px) {
+  .contact__detail-list { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── about: full-bleed sub-hero ──────────────────────────────────────────────
+   The one light-toned band in a dark document. A bright daylight building fills
+   the block; the copy sits on top in the inverted ink (.theme-light supplies
+   near-black on cream). The still is a <video> poster, so dropping
+   assets/video/about.webm|mp4 in swaps the block to footage with no markup
+   change — same convention as the scaling-video reel. */
+
+.about-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 88svh;
+  padding-top: var(--space-section);
+  padding-bottom: var(--space-section);
+  overflow: hidden;
+  /* .section paints var(--bg); here the media IS the background. */
+  background-color: transparent;
+}
+
+.about-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.about-hero__media video,
+.about-hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Cream wash: the building stays bright and the near-black copy reads over it.
+   Only the stats panel goes black — it opts into theme-dark in the markup. */
+.about-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to right,
+      rgba(250, 249, 245, 0.94) 0%,
+      rgba(250, 249, 245, 0.86) 32%,
+      rgba(250, 249, 245, 0.42) 62%,
+      rgba(250, 249, 245, 0.04) 100%
+    );
+}
+
+.about-hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: calc(var(--size-container-ideal) * 1px);
+  margin-inline: auto;
+  width: 100%;
+}
+
+.about-hero__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: min(var(--t-h2), 78px);
+  line-height: 1.02;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  white-space: pre-line;
+  max-width: 16ch;
+}
+
+.about-hero__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  max-width: 54ch;
+  font-size: min(var(--t-md), 19px);
+  line-height: 1.65;
+  color: var(--dim);
+}
+
+.about-hero__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap-reg);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: var(--border-hairline);
+  /* No tighter max-width: four counters at this size need the room, and
+     constraining it made the numbers overrun each other. */
+  max-width: 72%;
+}
+
+/* The counters also have to come down from the --t-h3 they use elsewhere —
+   at this viewport that resolves past 100px and four of them will not sit in a
+   row alongside the building. */
+/* No colour here — .type-starfield owns the fill (dark glyphs holding stars). */
+.about-hero__stats .stat__value { font-size: min(var(--t-h3), 54px); }
+/* 20px bold: comfortably over the 16px floor and, being >=18.66px bold, it
+   counts as large text for contrast purposes too. */
+.about-hero__stats .stat__label {
+  color: var(--dim);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+@media screen and (max-width: 1279px) {
+  .about-hero__stats { max-width: none; }
+}
+
+@media screen and (max-width: 991px) {
+  /* Vertical wash instead: at this width the copy spans the block, so a
+     left-to-right fade would leave the bottom lines over bare building. */
+  .about-hero__scrim {
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(250, 249, 245, 0.92) 0%,
+        rgba(250, 249, 245, 0.88) 55%,
+        rgba(250, 249, 245, 0.52) 100%
+      );
+  }
+  .about-hero { min-height: 0; }
+  .about-hero__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-md); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-hero__media video { display: none; }
+}

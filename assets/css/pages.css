@@ -1,0 +1,433 @@
+/* ==========================================================================
+   pages.css — templates for the CMS-style routes
+   NOTE: only "/" was DOM-analysed (01-discovery > dom_clusters, analyzed:false
+   on every other cluster). These templates are built from the home page's
+   measured design system, not from measurements of their own. See MISSING.md.
+   ========================================================================== */
+
+/* ── page hero (shared by every sub-page) ───────────────────────────────── */
+
+.page-hero {
+  position: relative;
+  padding-top: 15em;
+  padding-bottom: var(--space-lg);
+  border-bottom: var(--border-hairline);
+  overflow: hidden;
+}
+
+.page-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Same treatment as the home hero: dim enough for the type, open enough that
+     the star field still reads behind it. */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.24) 58%, rgba(0, 0, 0, 0.42));
+}
+
+.page-hero__inner { position: relative; z-index: 1; }
+
+/* Set in English on every sub-page (see components.mjs > pageHero).
+   Capped at 100px rather than pinned to it: min() keeps the fluid ratio wherever
+   it resolves smaller — mobile, where --t-h1 is ~2.6rem — so the cap only bites
+   on desktop, which is where 161px was too large. A flat `font-size: 100px`
+   would blow the headline off the side of a phone. */
+.page-hero__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: min(var(--t-h1), 100px);
+  line-height: 0.98;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  white-space: pre-line;
+}
+
+/* Capped at 25px, same reasoning as the title above: min() keeps the fluid ratio
+   wherever it already resolves smaller (mobile --t-lead is ~1.25rem), so the cap
+   only bites on desktop. Wins over .u-lead because pages.css loads last and both
+   selectors have the same specificity. */
+.page-hero__lead {
+  margin-top: var(--space-md);
+  max-width: 46ch;
+  font-size: min(var(--t-lead), 25px);
+  line-height: 1.5;
+}
+
+.page-hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-sm);
+  border-top: var(--border-hairline);
+}
+
+@media screen and (max-width: 767px) {
+  .page-hero { padding-top: 10em; }
+}
+
+/* ── breadcrumb ──────────────────────────────────────────────────────────── */
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6em;
+  margin-bottom: var(--space-md);
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dimmer);
+}
+
+.breadcrumb a:hover { color: var(--ink); }
+.breadcrumb li:not(:last-child)::after { content: '/'; margin-left: 0.6em; opacity: 0.5; }
+.breadcrumb li { display: inline-flex; align-items: center; }
+.breadcrumb [aria-current='page'] { color: var(--dim); }
+
+/* ── work index ──────────────────────────────────────────────────────────── */
+
+.work-list { display: grid; gap: var(--space-lg); }
+
+.work-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--gap-large);
+  align-items: center;
+  padding-bottom: var(--space-lg);
+  border-bottom: var(--border-hairline);
+}
+
+.work-row:nth-child(even) .work-row__media { order: 2; }
+
+.work-row__body { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+.work-row__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-h3);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.work-row__latin {
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--dimmer);
+}
+
+@media screen and (max-width: 991px) {
+  .work-row { grid-template-columns: minmax(0, 1fr); }
+  .work-row:nth-child(even) .work-row__media { order: 0; }
+}
+
+.case__facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap-reg);
+  padding: var(--space-md) 0;
+  border-bottom: var(--border-hairline);
+}
+
+.case__fact dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dimmer);
+  margin-bottom: var(--space-3xs);
+}
+
+.case__fact dd { font-size: var(--t-sm); }
+
+.case__block {
+  display: grid;
+  grid-template-columns: 0.5fr 1.5fr;
+  gap: var(--gap-large);
+  padding: var(--space-lg) 0;
+  border-bottom: var(--border-hairline);
+}
+
+.case__block-title {
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dim);
+}
+
+.case__block-body {
+  font-family: var(--font-serif);
+  font-size: var(--t-lead);
+  line-height: 1.35;
+  max-width: 30ch;
+}
+
+.case__block--prose .case__block-body {
+  font-family: var(--font-body);
+  font-size: var(--t-md);
+  line-height: 1.6;
+  color: var(--dim);
+  max-width: 62ch;
+}
+
+.case__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap-reg);
+  padding: var(--space-lg) 0;
+}
+
+.case__gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-small);
+}
+
+.case__gallery .media:first-child { grid-column: span 2; }
+
+@media screen and (max-width: 991px) {
+  .case__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-md); }
+  .case__block { grid-template-columns: minmax(0, 1fr); gap: var(--space-sm); }
+  .case__stats { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-md); }
+}
+
+@media screen and (max-width: 767px) {
+  .case__gallery { grid-template-columns: minmax(0, 1fr); }
+  .case__gallery .media:first-child { grid-column: span 1; }
+}
+
+/* ── service detail ──────────────────────────────────────────────────────── */
+
+.service__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--gap-large);
+  align-items: start;
+}
+
+.service__prose { display: flex; flex-direction: column; gap: var(--space-sm); color: var(--dim); font-size: var(--t-md); line-height: 1.65; }
+
+.service__panel {
+  position: sticky;
+  top: 9em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border: var(--border-hairline);
+  border-radius: var(--radius-card);
+  background: var(--bg-raised);
+  -webkit-backdrop-filter: var(--blur-glass);
+  backdrop-filter: var(--blur-glass);
+}
+
+.service__panel-title {
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dimmer);
+  margin-bottom: var(--space-2xs);
+}
+
+.service__checklist { display: flex; flex-direction: column; gap: var(--space-2xs); }
+
+.service__checklist li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  font-size: var(--t-base);
+}
+
+.service__checklist li::before {
+  content: '';
+  flex: none;
+  width: 0.35em;
+  height: 0.35em;
+  border-radius: var(--radius-circle);
+  background: var(--ink);
+  transform: translateY(-0.2em);
+}
+
+.service__nav-list { display: grid; gap: 0; border-top: var(--border-hairline); }
+
+.service__nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  border-bottom: var(--border-hairline);
+  font-size: var(--t-base);
+  color: var(--dim);
+}
+
+.service__nav-item:hover { color: var(--ink); }
+.service__nav-item[aria-current='page'] { color: var(--ink); }
+
+.service__nav-num {
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  letter-spacing: var(--tracking-mono);
+  color: var(--dimmer);
+}
+
+@media screen and (max-width: 991px) {
+  .service__grid { grid-template-columns: minmax(0, 1fr); }
+  .service__panel { position: static; }
+}
+
+/* ── journal ─────────────────────────────────────────────────────────────── */
+
+.post-list { border-top: var(--border-hairline); }
+
+.post-row {
+  display: grid;
+  grid-template-columns: 8em 1fr 6em;
+  gap: var(--gap-large);
+  align-items: baseline;
+  padding: var(--space-lg) 0;
+  border-bottom: var(--border-hairline);
+}
+
+.post-row__date,
+.post-row__time {
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dimmer);
+}
+
+.post-row__time { text-align: right; }
+
+.post-row__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-h4);
+  line-height: 1.15;
+  text-transform: uppercase;
+  transition: transform 0.45s var(--ease-ui);
+}
+
+.post-row__excerpt { margin-top: var(--space-2xs); color: var(--dim); max-width: 60ch; }
+
+.post-row__cat {
+  display: inline-block;
+  margin-bottom: var(--space-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--t-3xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--dim);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .post-row:hover .post-row__title { transform: translateX(0.4em); }
+}
+
+@media screen and (max-width: 767px) {
+  .post-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-2xs); }
+  .post-row__time { text-align: left; }
+}
+
+/* ── legal ───────────────────────────────────────────────────────────────── */
+
+.legal { max-width: 74ch; }
+
+.legal__section { padding: var(--space-md) 0; border-bottom: var(--border-hairline); }
+
+.legal__section h2 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-md);
+  text-transform: uppercase;
+  margin-bottom: var(--space-2xs);
+}
+
+.legal__section p { color: var(--dim); line-height: 1.75; margin-bottom: var(--space-2xs); }
+
+.legal__notice {
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border-hairline);
+  border-radius: var(--radius-card);
+  font-size: var(--t-xs);
+  color: var(--dim);
+}
+
+/* ── 404 ─────────────────────────────────────────────────────────────────── */
+
+.notfound {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.notfound__code {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--t-2xl);
+  line-height: 1;
+}
+
+/* ── gallery mosaic ──────────────────────────────────────────────────────────
+   A fixed row unit plus deliberate spans, NOT mixed aspect ratios. The earlier
+   version let each tile keep its own 4x3 / 1x1 / 3x4 ratio inside an auto-row
+   grid, so every row resolved to a different height and the block came out
+   ragged with holes in it.
+
+   Here every cell is measured in the same row unit and the tiles are told to
+   fill it, so the 8 tiles pack a 4 x 3 field exactly:
+
+       ┌───────────┬─────┬─────┐
+       │           │  2  │  3  │
+       │     1     ├─────┼─────┤
+       │           │  4  │  5  │
+       ├─────┬─────┴─────┼─────┤
+       │  6  │     7     │  8  │
+       └─────┴───────────┴─────┘                                              */
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 15rem;
+  gap: var(--gap-small);
+}
+
+/* The tiles carry ratio classes for use elsewhere; inside the mosaic the grid
+   owns the shape, so the ratio is released and the tile fills its cell. */
+.gallery-grid .media {
+  aspect-ratio: auto;
+  height: 100%;
+  min-height: 0;
+}
+
+.gallery-grid > *:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+.gallery-grid > *:nth-child(7) { grid-column: span 2; }
+
+@media screen and (max-width: 991px) {
+  /* 2 columns: tile 1 spans the width, tile 7 pairs off, everything else 1x1.
+         ┌───────────┐
+         │     1     │
+         ├─────┬─────┤
+         │  2  │  3  │  … and so on
+  */
+  .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 12rem; }
+  .gallery-grid > *:nth-child(1) { grid-column: span 2; grid-row: span 1; }
+  .gallery-grid > *:nth-child(7) { grid-column: span 2; }
+}
+
+@media screen and (max-width: 767px) {
+  .gallery-grid { grid-template-columns: minmax(0, 1fr); grid-auto-rows: 14rem; }
+  .gallery-grid > * { grid-column: span 1 !important; grid-row: span 1 !important; }
+}

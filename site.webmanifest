@@ -1,0 +1,19 @@
+{
+  "name": "(주)이루모스 — 키친타월 · 점보롤티슈 · 두루마리티슈 | (주)이루모스",
+  "short_name": "ILUMOS",
+  "description": "(주)이루모스는 키친타월, 점보롤티슈, 두루마리티슈를 공급하는 위생용지 기업입니다. 가정용 소량부터 업소용 대량 납품, 로고 인쇄 주문제작까지 상담해 드립니다.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "ko",
+  "background_color": "#06060c",
+  "theme_color": "#06060c",
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

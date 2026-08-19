@@ -1,0 +1,259 @@
+/* ==========================================================================
+   base.css — reset, root typography, layout primitives
+   Dark-first: white on black (census — color:#fff 1067 uses, bg:#000 dominant).
+   ========================================================================== */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+* { margin: 0; padding: 0; }
+
+html {
+  /* Font-size IS the fluid unit: every em in the system resolves through it. */
+  font-size: var(--size-font);
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto; /* Lenis owns scrolling; native smooth would fight it */
+}
+
+body {
+  background-color: var(--bg-solid);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--t-base);
+  font-weight: 400;
+  line-height: var(--lh-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  word-break: keep-all; /* Korean: never split mid-word */
+}
+
+img,
+video,
+canvas,
+svg { display: block; max-width: 100%; }
+
+img,
+video { height: auto; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-ui) var(--ease-ui), opacity var(--dur-ui) var(--ease-ui);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+}
+
+button { cursor: pointer; }
+
+ul,
+ol { list-style: none; }
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* ── typography roles ────────────────────────────────────────────────────── */
+
+.u-display,
+h1, h2, h3.u-display {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  text-transform: uppercase;
+  line-height: var(--lh-display);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: var(--t-h1); }
+h2 { font-size: var(--t-h2); }
+h3 { font-size: var(--t-h4); font-family: var(--font-display); font-weight: var(--weight-display); line-height: var(--lh-display); }
+
+.u-display--xl { font-size: var(--t-2xl); }
+.u-display--lg { font-size: var(--t-xl); }
+
+/* Serif role — editorial leads and FAQ questions (IBM Plex Serif; Hangul falls
+   through to IBM Plex Sans KR, which ships no serif — see tokens.css). */
+.u-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: var(--lh-display);
+  letter-spacing: -0.005em;
+}
+
+.u-lead {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--t-lead);
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+/* Mono role — eyebrows / section tags, e.g. "(Who we are)" (IBM Plex Mono). */
+.u-mono {
+  font-family: var(--font-mono);
+  font-size: var(--t-2xs);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  line-height: 1.4;
+}
+
+.u-body { font-size: var(--t-base); line-height: var(--lh-body); }
+.u-body--md { font-size: var(--t-md); line-height: 1.55; }
+.u-dim { color: var(--dim); }
+.u-dimmer { color: var(--dimmer); }
+.u-center { text-align: center; }
+.u-nowrap { white-space: nowrap; }
+.u-balance { text-wrap: balance; }
+
+.u-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  z-index: 999;
+  padding: var(--space-2xs) var(--space-sm);
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: var(--radius-pill);
+  transform: translateY(-200%);
+  transition: transform var(--dur-ui) var(--ease-ui);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* ── layout primitives ───────────────────────────────────────────────────── */
+
+.page-main { position: relative; z-index: var(--z-base); }
+
+.padding-global {
+  width: 100%;
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+.container {
+  width: 100%;
+  max-width: calc(var(--size-container-ideal) * 1px);
+  margin-inline: auto;
+}
+
+.container--wide { max-width: 1800px; }
+.container--narrow { max-width: 820px; }
+
+/* section padding measured at 146.2 / 167.6px */
+.padding-section {
+  padding-top: var(--space-section);
+  padding-bottom: var(--space-section);
+}
+.padding-section--lg {
+  padding-top: var(--space-section-lg);
+  padding-bottom: var(--space-section-lg);
+}
+.padding-section--top-0 { padding-top: 0; }
+.padding-section--bottom-0 { padding-bottom: 0; }
+
+/* The WebGL field is a FIXED backdrop behind the whole document, and sections
+   are now TRANSLUCENT over it, so the same star field reads faintly through the
+   entire page rather than only through the hero. The field stays put while
+   content scrolls, which is exactly how the analysed original behaved
+   (.unicorn__item held top:0 across all 21 scroll stops). */
+.section {
+  position: relative;
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+/* Opt a single block into the opposite theme. */
+.section--inverted { background-color: var(--bg); color: var(--ink); }
+
+.hairline {
+  width: 100%;
+  height: 1px;
+  background: var(--hairline);
+  border: 0;
+}
+
+.stack { display: flex; flex-direction: column; }
+.stack--sm { gap: var(--gap-small); }
+.stack--reg { gap: var(--gap-reg); }
+.stack--lg { gap: var(--gap-large); }
+
+.grid {
+  display: grid;
+  gap: var(--gap-reg);
+}
+.grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid--12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+
+@media screen and (max-width: 991px) {
+  .padding-global { padding-left: var(--space-sm); padding-right: var(--space-sm); }
+  .grid--3, .grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media screen and (max-width: 767px) {
+  .grid--2, .grid--3, .grid--4 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── reduced motion ──────────────────────────────────────────────────────────
+   The source sheet carries a (prefers-reduced-motion: reduce) block, but its body
+   could not be read (03-motion > reduced_motion). This implementation is ours:
+   everything that moves on its own stops; scroll reveals resolve to their end state
+   (handled in motion.js).
+   ────────────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Korean name under a Latin display line ──────────────────────────────────
+   Every title on the site is set in English; the Korean name sits directly
+   beneath it in this one shared style. Used by the sub-page hero, the services
+   tablist, the process list, work cards and the pager — one rule rather than a
+   bespoke class per component.
+
+   Sized in rem, so it never compounds against the (often very large) display
+   font-size of the element it sits inside. */
+.t-ko {
+  display: block;
+  margin-top: 0.34em;
+  font-family: var(--font-body);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--dim);
+}

@@ -1,0 +1,284 @@
+/* ==========================================================================
+   tokens.css — design system
+   Derived from 05-design-system.json (frequency census of 1,540 live nodes)
+   and 02-source/at-rules-and-tokens.json (:root custom properties, verbatim).
+
+   The whole system hangs off one fluid unit:
+       --size-font = clamp(992px, 100vw, 2560px) / 90
+   Every size below is a multiple of it. The measured px column in the comments
+   is the value at the analysed viewport (innerWidth 1315 -> 14.611px), which is
+   why the report's numbers are fractional.
+   ========================================================================== */
+
+:root {
+  /* -- fluid scaling system (verbatim from the live :root) ----------------- */
+  --size-unit: 16;
+  --size-container-ideal: 1440;
+  --size-container-min: 992px;
+  --size-container-max: 2560px;
+  --size-container: clamp(992px, 100vw, 2560px);
+  --size-font: calc(clamp(992px, 100vw, 2560px) / (1440 / 16)); /* => /90 */
+
+  /* -- gaps (verbatim) ----------------------------------------------------- */
+  --gap-small: 1em;
+  --gap-reg: 2em;
+  --gap-large: 3em;
+
+  /* -- color (verbatim + census) ------------------------------------------- */
+  --black: black;
+  --white: white;
+  --gray: #312b2c;
+  --transparent: transparent;
+
+  /* The one chromatic colour in the system. The analysed original carries ZERO
+     chromatic CSS — every hue came from the WebGL layer (05-design-system >
+     css_gradients: "0 (none)"). The accent is a project decision, scoped to the
+     single cycling hero line so the monochrome rule still holds everywhere else.
+     See MISSING.md > C15.
+
+     이루모스 리뉴얼에서 한 번 로고의 주황(#f5a44b)으로 바꿨다가 라임으로 되돌렸습니다.
+     숲 배경 위에서는 주황이 나무의 갈색·황색과 붙어 히어로 2행이 배경에 묻히는데,
+     라임은 침엽수의 청록과도 밤하늘의 감청과도 겹치지 않아 그 한 줄만 또렷하게
+     떠오릅니다. 액센트가 딱 한 군데 쓰이는 시스템이라 이 대비가 전부입니다. */
+  --accent-lime: #c8ff3d;
+
+  --near-black: #141413;            /* census color:4 */
+  --cream: #faf9f5;                 /* inverted surface, bg:1 */
+  --overlay-dark: rgba(19, 19, 19, 0.55);
+  --overlay-black: rgba(0, 0, 0, 0.8);
+  --hairline-white: rgba(255, 255, 255, 0.2);   /* color/border:45 */
+  --hairline-gray: rgba(100, 100, 100, 0.2);
+
+  /* The palette is deliberately monochrome. Every hue on the original comes from
+     WebGL canvases and video — there are ZERO CSS gradients in the source sheet. */
+
+  /* -- semantic surface tokens ----------------------------------------------
+     The whole document runs in ONE dark tone now — the hero's tone. Sections are
+     not opaque black but a deep, slightly blue-shifted near-black laid over the
+     fixed star field, so the same backdrop reads faintly through every block and
+     the page holds together as one continuous space.
+
+     This matches the analysed original, which was dark-first throughout (white
+     #fff on black, 05-design-system > theme). The cream/near-black pair is kept
+     below as `.theme-light` for any block that wants to invert — the census
+     recorded those exact values on the source's inverted blocks.
+
+     Components never reference --black/--white directly for surface or text;
+     they use these tokens, so a block flips by changing one class. */
+
+  /* DARK is the default — it covers the entire document. */
+  --bg: rgba(6, 6, 12, 0.82);        /* translucent: the star field shows through */
+  --bg-solid: #06060c;               /* where translucency is not wanted */
+  --bg-raised: rgba(255, 255, 255, 0.045);
+  --ink: var(--white);
+  --dim: rgba(255, 255, 255, 0.58);
+  --dimmer: rgba(255, 255, 255, 0.40);
+  --hairline: var(--hairline-white);
+  --glass: rgba(6, 6, 12, 0.72);
+  --scrim: rgba(0, 0, 0, 0.72);
+  --media-placeholder: rgba(255, 255, 255, 0.06);
+}
+
+/* Kept so `.theme-dark` in the markup stays valid and self-documenting. It is
+   now the same as the root, which is the point: the hero no longer differs from
+   the rest of the page.
+
+   `color` MUST be re-declared in any theme scope, not just inherited. A custom
+   property inside `color: var(--ink)` resolves once, on the element that
+   declares it, and descendants inherit the resolved colour — not the variable. */
+.theme-dark {
+  color: var(--ink);
+}
+
+/* Inverted scope, for a block that deliberately goes light. Unused by default. */
+.theme-light {
+  color: var(--ink);
+  /* The bright hero lime is invisible on cream (about 1.2:1). This darker lime
+     reads as the same hue family and clears WCAG AA for large text. */
+  --accent-lime: #5f8f00;
+  --bg: var(--cream);
+  --bg-solid: var(--cream);
+  --bg-raised: #ffffff;
+  --ink: var(--near-black);
+  --dim: rgba(20, 20, 19, 0.64);
+  --dimmer: rgba(20, 20, 19, 0.42);
+  --hairline: rgba(20, 20, 19, 0.16);
+  --glass: rgba(250, 249, 245, 0.72);
+  --media-placeholder: rgba(20, 20, 19, 0.07);
+}
+
+:root {
+
+  /* -- type families --------------------------------------------------------
+     IBM Plex is the GLOBAL family across every role (project decision — it
+     overrides the analysed stack, which was Gabarito 900 / Instrument Serif /
+     Montserrat / Martian Mono. Recorded in MISSING.md > typography-override).
+     IBM Plex ONLY — no other foundry is loaded anywhere on the site:
+        sans  -> IBM Plex Sans KR   (display + UI + body)
+        mono  -> IBM Plex Mono      (eyebrows / labels; Hangul falls to Sans KR)
+        serif -> IBM Plex Serif     (editorial leads)
+
+     Trade-off to be aware of: IBM Plex Serif ships NO Hangul, so Korean in the
+     serif role falls through to IBM Plex Sans KR — Latin renders serif, Korean
+     renders sans. Inside one mixed sentence that difference is visible. It is
+     accepted here because "IBM globally" was the explicit requirement; the only
+     way to get a Korean serif is to load a non-IBM face (Noto Serif KR was doing
+     that job and has been removed). See MISSING.md > C1. */
+  --font-display: 'IBM Plex Sans KR', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans KR', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'IBM Plex Sans KR', ui-monospace, monospace;
+  --font-serif: 'IBM Plex Serif', 'IBM Plex Sans KR', Georgia, serif;
+
+  /* IBM Plex Sans KR tops out at 700, so the display weight is 700, not the
+     Gabarito 900 the census measured. */
+  --weight-display: 700;
+
+  /* -- type scale — multiples of --size-font (measured px @1315) -------------
+     Written in rem, NOT em. `html { font-size: var(--size-font) }` makes 1rem
+     exactly one --size-font unit, which is the ratio the report derives — but
+     unlike em it does not compound when a token is used inside an element that
+     already changed its own font-size (e.g. the description nested in a 3rem
+     service-tab title). Same numbers, no cascade multiplication. */
+  /* --- 16px MINIMUM ---------------------------------------------------------
+     Project requirement: no text renders below 16px. Every token whose natural
+     ratio can resolve under 16px carries a max() floor. The ratios themselves
+     are unchanged, so above ~1440px the scale is exactly the measured one and
+     the floors never engage; below that the small end clamps.
+     Consequence to be aware of: at and under the 1440px ideal the bottom three
+     steps all land on 16px, so label-vs-body hierarchy is carried by family
+     (mono), tracking and colour rather than by size. */
+  --t-min: 16px;
+  --t-3xs: max(var(--t-min), 0.7rem);    /* 10.2 measured */
+  --t-2xs: max(var(--t-min), 0.8rem);    /* 11.7 measured */
+  --t-xs: max(var(--t-min), 0.9rem);     /* 13.2 measured */
+  --t-base: max(var(--t-min), 1rem);     /* 14.6 measured <- dominant base, 782 nodes */
+  --t-sm: max(var(--t-min), 1.15rem);    /* 16.8 measured */
+  --t-md: max(var(--t-min), 1.25rem);    /* 18.3 measured */
+  --t-lg: max(var(--t-min), 1.5rem);     /* 21.9 measured <- FAQ question */
+  --t-lead: 2.19rem;  /* 32.0  <- editorial lead (Instrument Serif) */
+  --t-nav: 2.5rem;    /* 36.5  <- overlay menu link */
+  --t-h4: 3rem;       /* 43.9 */
+  --t-h3: 4.56rem;    /* 66.7 */
+  --t-h2: 5.5rem;     /* 80.4  <- section H2 (Gabarito 900) */
+  --t-h1: 6.875rem;   /* 100.5 <- display H1 */
+  --t-xl: 7rem;       /* 102.3 */
+  --t-2xl: 10rem;     /* 146.2 <- largest hero word */
+
+  --lh-display: 1.2;   /* measured 120.6/100.5, 96.5/80.4 */
+  --lh-body: 1.4;      /* measured 20.5/14.6 */
+  --tracking-mono: 0.085em; /* measured 1.02-1.24px on 14.6px base */
+
+  /* -- spacing rhythm — 0.5x / 1x / 2x of base (rem, for the same reason) --- */
+  --space-3xs: 0.25rem;  /* 3.65 */
+  --space-2xs: 0.5rem;   /* 7.3 */
+  --space-xs: 0.8rem;    /* 11.7 */
+  --space-sm: 1rem;      /* 14.6 */
+  --space-md: 2rem;      /* 29.2 */
+  --space-lg: 2.3rem;    /* 33.6 */
+  --space-xl: 4rem;
+  --space-section: 10rem;       /* 146.2 */
+  --space-section-lg: 11.47rem; /* 167.6 */
+
+  /* -- radius -------------------------------------------------------------- */
+  --radius-sm: 0.25rem;   /* 3.65 */
+  --radius-12: 12px;
+  --radius-card: 1rem;    /* 14.6 */
+  --radius-pill: 2.63rem; /* 38.4 — buttons */
+  --radius-lg: 3.5rem;    /* 51.2 */
+  --radius-circle: 50%;
+
+  /* -- borders / effects --------------------------------------------------- */
+  --border-hairline: 1px solid var(--hairline);
+  --border-button: 1px solid var(--white); /* report: "1.11px solid #fff" @dpr 0.9 */
+  --blur-glass: blur(15px);
+
+  /* No box-shadow tokens: the source site is flat. The only shadows in the raw
+     census were injected by a browser extension and were excluded (07-audit). */
+
+  /* -- motion tokens (05-design-system > motion_tokens) -------------------- */
+  --dur-media: 0.6s;
+  --dur-reveal: 0.8s;
+  --dur-logo: 0.8s;
+  --dur-counter: 1s;
+  --dur-carousel-in: 1.2s;
+  --dur-scramble: 1.5s;
+  --dur-marquee: 1.8s;
+  --dur-spin: 30s;
+  --dur-ui: 0.3s;
+  --stagger: 0.1s;
+  --ease-ui: cubic-bezier(0.625, 0.05, 0, 1); /* measured on the lightbox state machine */
+  --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-expo-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* -- z-index ------------------------------------------------------------- */
+  --z-webgl: 0;      /* .unicorn__item — fixed full-viewport, behind everything */
+  --z-base: 1;
+  --z-sticky: 20;
+  --z-header: 100;   /* header top:0 constant across the whole 21,266px scroll */
+  --z-overlay: 200;
+  --z-cursor: 9999;  /* mix-blend-mode: difference */
+}
+
+/* --------------------------------------------------------------------------
+   Sub-992px: the fluid clamp bottoms out at 992px, which would overflow small
+   viewports. The original hands off to Webflow media queries here — but the
+   analysis could never reflow the page below ~1315px, so this reflow is
+   RECONSTRUCTED, not measured. See MISSING.md > responsive-below-992.
+   Breakpoints are the real ones (02-source > breakpoints_effective).
+   -------------------------------------------------------------------------- */
+
+@media screen and (max-width: 991px) {
+  :root {
+    --size-container: 100vw;
+
+    /* One continuous unit for the whole sub-992 range. Continuing the source
+       formula (100vw/90) would put body text at 8.5px on a phone, which is why
+       the original hands off to Webflow breakpoints here. A 14px floor keeps
+       Korean body copy readable; a 16px ceiling meets the 1440px "ideal" value
+       so the jump across the 992px boundary stays small. */
+    --size-font: clamp(14px, 1.6vw, 16px);
+
+    /* Display tokens step down per breakpoint so headings stay proportional
+       even though the base unit is now larger relative to the viewport. */
+    --t-2xl: 5.4rem;
+    --t-xl: 4.6rem;
+    --t-h1: 4.4rem;
+    --t-h2: 3.6rem;
+    --t-h3: 2.8rem;
+    --t-h4: 2.1rem;
+    --t-nav: 1.9rem;
+    --t-lead: 1.7rem;
+    --t-3xs: max(var(--t-min), 0.78rem);
+    --t-2xs: max(var(--t-min), 0.85rem);
+    --space-section: 5.5rem;
+    --space-section-lg: 6rem;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  :root {
+    --t-2xl: 3rem;
+    --t-xl: 2.7rem;
+    --t-h1: 2.6rem;
+    --t-h2: 2.15rem;
+    --t-h3: 1.8rem;
+    --t-h4: 1.5rem;
+    --t-nav: 1.5rem;
+    --t-lead: 1.25rem;
+    --t-lg: max(var(--t-min), 1.15rem);
+    --space-section: 4rem;
+    --space-section-lg: 4.5rem;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  :root {
+    --t-2xl: 2.5rem;
+    --t-xl: 2.3rem;
+    --t-h1: 2.2rem;
+    --t-h2: 1.85rem;
+    --t-h3: 1.6rem;
+    --space-section: 3.25rem;
+    --space-section-lg: 3.5rem;
+  }
+}

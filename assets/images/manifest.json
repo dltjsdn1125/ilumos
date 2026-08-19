@@ -1,0 +1,458 @@
+{
+  "og-cover": {
+    "src": "/assets/images/og-cover.webp",
+    "width": 1200,
+    "height": 630,
+    "alt": "(주)이루모스 대표 이미지 — 위생용지",
+    "credit": "Pixabay / MabelAmber",
+    "query": "kitchen paper towel roll",
+    "luma": 184,
+    "source": "stock"
+  },
+  "work-etch": {
+    "src": "/assets/images/work-etch.webp",
+    "width": 1600,
+    "height": 1200,
+    "alt": "외식업장 주방",
+    "credit": "Pexels / RDNE Stock project",
+    "query": "commercial restaurant kitchen stainless",
+    "luma": 91,
+    "source": "stock"
+  },
+  "work-cleaning": {
+    "src": "/assets/images/work-cleaning.webp",
+    "width": 1600,
+    "height": 1200,
+    "alt": "요양 · 의료시설 복도",
+    "credit": "Pexels / Enrique Silva",
+    "query": "hospital corridor clean interior",
+    "luma": 168,
+    "source": "stock"
+  },
+  "work-hbm": {
+    "src": "/assets/images/work-hbm.webp",
+    "width": 1600,
+    "height": 1200,
+    "alt": "카페 · 숙박업소 실내",
+    "credit": "Pexels / zona .exe123ph",
+    "query": "cafe interior table wooden",
+    "luma": 108,
+    "source": "stock"
+  },
+  "service-parts": {
+    "src": "/assets/images/service-parts.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "키친타월 — 액체 흡수 시험",
+    "credit": "(주)이루모스 원본 사진 (original/images/03-content.jpg)",
+    "source": "original"
+  },
+  "service-clean": {
+    "src": "/assets/images/service-clean.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "점보롤티슈 — 대용량 롤",
+    "credit": "(주)이루모스 원본 사진 (original/images/04-content.jpg)",
+    "source": "original"
+  },
+  "service-ceramic": {
+    "src": "/assets/images/service-ceramic.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "두루마리티슈 — 엠보싱 롤",
+    "credit": "(주)이루모스 원본 사진 (original/images/06-content.jpg)",
+    "source": "original"
+  },
+  "service-inspection": {
+    "src": "/assets/images/service-inspection.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "미용티슈 · 냅킨 — 적층 묶음",
+    "credit": "(주)이루모스 원본 사진 (original/images/11-content.png)",
+    "source": "original"
+  },
+  "service-coating": {
+    "src": "/assets/images/service-coating.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "핸드타월 — 접이식 적층",
+    "credit": "(주)이루모스 원본 사진 (original/images/02-content.jpg)",
+    "source": "original"
+  },
+  "service-vacuum": {
+    "src": "/assets/images/service-vacuum.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "주방용 종이호일",
+    "credit": "(주)이루모스 원본 사진 (original/images/08-content.png)",
+    "source": "original"
+  },
+  "service-reliability": {
+    "src": "/assets/images/service-reliability.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "대량 공급 — 적재된 롤",
+    "credit": "(주)이루모스 원본 사진 (original/images/05-content.jpg)",
+    "source": "original"
+  },
+  "silicon-wafer": {
+    "src": "/assets/images/silicon-wafer.webp",
+    "width": 900,
+    "height": 1200,
+    "alt": "두루마리티슈 2롤",
+    "credit": "(주)이루모스 원본 사진 (original/images/07-content.jpg)",
+    "source": "original"
+  },
+  "cleanroom-bay": {
+    "src": "/assets/images/cleanroom-bay.webp",
+    "width": 1200,
+    "height": 800,
+    "alt": "점보롤 적재",
+    "credit": "(주)이루모스 원본 사진 (original/images/12-content.png)",
+    "source": "original"
+  },
+  "chip-array": {
+    "src": "/assets/images/chip-array.webp",
+    "width": 1200,
+    "height": 800,
+    "alt": "두루마리티슈 묶음",
+    "credit": "(주)이루모스 원본 사진 (original/images/13-content.png)",
+    "source": "original"
+  },
+  "nano-texture": {
+    "src": "/assets/images/nano-texture.webp",
+    "width": 1000,
+    "height": 1000,
+    "alt": "컬러 인쇄 · 색상 옵션",
+    "credit": "(주)이루모스 원본 사진 (original/images/09-content.png)",
+    "source": "original"
+  },
+  "probe-station": {
+    "src": "/assets/images/probe-station.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "핸드타월 디스펜서",
+    "credit": "Pexels / https://kaboompics.com/",
+    "query": "drying hands paper towel",
+    "luma": 188,
+    "source": "stock"
+  },
+  "lab-optics": {
+    "src": "/assets/images/lab-optics.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "주방용 종이호일",
+    "credit": "Pexels / Felicity Tai",
+    "query": "baking paper parchment tray",
+    "luma": 155,
+    "source": "stock"
+  },
+  "semiconductor-line": {
+    "src": "/assets/images/semiconductor-line.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "포장 · 생산 라인",
+    "credit": "Pexels / Vladimir Srajber",
+    "query": "production line conveyor factory",
+    "luma": 120,
+    "source": "stock"
+  },
+  "server-rack": {
+    "src": "/assets/images/server-rack.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "박스 단위 보관 창고",
+    "credit": "Pexels / Tiger Lily",
+    "query": "warehouse boxes shelves storage",
+    "luma": 147,
+    "source": "stock"
+  },
+  "service-packaging": {
+    "src": "/assets/images/service-packaging.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "OEM · 주문제작 — 인쇄와 포장",
+    "credit": "Pixabay / zivica",
+    "query": "printed paper color ink sheets",
+    "luma": 101,
+    "source": "stock"
+  },
+  "about-building": {
+    "src": "/assets/images/about-building.webp",
+    "width": 1920,
+    "height": 1200,
+    "alt": "한낮의 생산 · 물류 시설 외관",
+    "credit": "Pexels / Jan van der Wolf",
+    "query": "modern warehouse building white exterior",
+    "luma": 147,
+    "source": "stock"
+  },
+  "work-foundry": {
+    "src": "/assets/images/work-foundry.webp",
+    "width": 1600,
+    "height": 1200,
+    "alt": "사무실 · 공공기관 실내",
+    "credit": "Pexels / Max Vakhtbovych",
+    "query": "open plan office interior desks",
+    "luma": 139,
+    "source": "stock"
+  },
+  "circuit-macro": {
+    "src": "/assets/images/circuit-macro.webp",
+    "width": 1200,
+    "height": 1200,
+    "alt": "엠보싱 표면 확대",
+    "credit": "Pexels / Beyzanur K.",
+    "query": "white paper texture macro soft",
+    "luma": 192,
+    "source": "stock"
+  },
+  "fab-equipment": {
+    "src": "/assets/images/fab-equipment.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "크라프트 원지 롤",
+    "credit": "Pexels / Brett Sayles",
+    "query": "paper mill production rolls",
+    "luma": 105,
+    "source": "stock"
+  },
+  "silicon-ingot": {
+    "src": "/assets/images/silicon-ingot.webp",
+    "width": 1200,
+    "height": 1200,
+    "alt": "원지 롤 보관",
+    "credit": "Pixabay / wal_172619",
+    "query": "paper rolls stacked warehouse industry",
+    "luma": 158,
+    "source": "stock"
+  },
+  "hero-poster": {
+    "src": "/assets/images/hero-poster.webp",
+    "width": 2560,
+    "height": 1440,
+    "alt": "흰 위생용지 롤",
+    "credit": "Pexels / Towfiqu barbhuiya",
+    "id": "pexels:11091978",
+    "url": "https://images.pexels.com/photos/11091978/pexels-photo-11091978.jpeg",
+    "query": "paper towel roll kitchen",
+    "luma": 94,
+    "source": "stock"
+  },
+  "chip-die": {
+    "src": "/assets/images/chip-die.webp",
+    "width": 1200,
+    "height": 1600,
+    "alt": "인쇄 전 무지 롤",
+    "credit": "Pexels / Frank Ouyang",
+    "id": "pexels:16867983",
+    "url": "https://images.pexels.com/photos/16867983/pexels-photo-16867983.jpeg",
+    "query": "paper towel roll white kitchen",
+    "luma": 155,
+    "source": "stock"
+  },
+  "hero-forest": {
+    "src": "/assets/images/hero-forest.webp",
+    "width": 2560,
+    "height": 1440,
+    "alt": "빛을 받은 울창한 숲",
+    "credit": "Pexels / Lauri Poldre",
+    "id": "pexels:29053495",
+    "url": "https://images.pexels.com/photos/29053495/pexels-photo-29053495.jpeg",
+    "query": "dense green forest tall trees",
+    "luma": 66,
+    "source": "stock"
+  },
+  "where-restaurant": {
+    "src": "/assets/images/where-restaurant.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "외식 프랜차이즈 — 위생용지 사용처",
+    "credit": "Pixabay / JamesDeMers",
+    "id": "pixabay:103464",
+    "url": "https://pixabay.com/get/g2036c72cbca19bbe6abaa04e7e908f1bb2a1fa25b834bef3319ff85cfcf2940af07a59652fc49ef9947f47ba3d392e4ca0e65df406d4b6b02ac97057851053f9_1280.jpg",
+    "query": "restaurant interior dining tables",
+    "luma": 110,
+    "source": "stock"
+  },
+  "where-catering": {
+    "src": "/assets/images/where-catering.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "단체 급식 — 위생용지 사용처",
+    "credit": "Pixabay / ejilee",
+    "id": "pixabay:544871",
+    "url": "https://pixabay.com/get/gf35f0d7368911fd1836771fcc20254e8d2363b306fc49dfbae3f1e68749a3718af125944e6686a2f728b4dd85384471c11939b9fc32cc4a15acb0d96bc1b1254_1280.jpg",
+    "query": "cafeteria canteen interior tables",
+    "luma": 77,
+    "source": "stock"
+  },
+  "where-office": {
+    "src": "/assets/images/where-office.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "사무 빌딩 — 위생용지 사용처",
+    "credit": "Pixabay / StockSnap",
+    "id": "pixabay:2565478",
+    "url": "https://pixabay.com/get/gf6a0096222e369a23c639b484253b6d596613534352327527a36efc96e69a5d2aeab4e41e67d2855f4ad46522cac8d8bd3932f3dc3b779e9c7ce539da2943642_1280.jpg",
+    "query": "office desks workspace interior",
+    "luma": 178,
+    "source": "stock"
+  },
+  "where-hotel": {
+    "src": "/assets/images/where-hotel.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "호텔 · 펜션 — 위생용지 사용처",
+    "credit": "Pixabay / peterweideman",
+    "id": "pixabay:5664221",
+    "url": "https://pixabay.com/get/ga2e71a4ca5256e49828323ce679e486a5e3a08e822f2c90f0ae2962dbe7ffadf74293df0e3fbefc27708a7a23760fa69d30c2ae28224bf315b7475394e447e8b_1280.jpg",
+    "query": "hotel room bed interior",
+    "luma": 137,
+    "source": "stock"
+  },
+  "where-cafe": {
+    "src": "/assets/images/where-cafe.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "카페 · 베이커리 — 위생용지 사용처",
+    "credit": "Pixabay / Pexels",
+    "id": "pixabay:1869656",
+    "url": "https://pixabay.com/get/gc15e1c045a22d51fbae817b7cfe16ac4e93d6a9a8202dbe985e5e3daf520d383a56582a091d8d5d11f3a9f5791a3e77d8819019c93906a772387f6542459a796_1280.jpg",
+    "query": "cafe counter interior coffee",
+    "luma": 85,
+    "source": "stock"
+  },
+  "where-logistics": {
+    "src": "/assets/images/where-logistics.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "물류 · 공장 — 위생용지 사용처",
+    "credit": "Pixabay / jotoler",
+    "id": "pixabay:4395773",
+    "url": "https://pixabay.com/get/g34125adaba5bd1040e2c22cf895a890ec4099c75b74f13252ba3eb775cdc0cad730c10b3bba87c3279ec6123cbd7ad77e80a20e13647bf809961f36bd812f627_1280.jpg",
+    "query": "warehouse racking logistics interior",
+    "luma": 119,
+    "source": "stock"
+  },
+  "where-market": {
+    "src": "/assets/images/where-market.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "마트 · 유통 — 위생용지 사용처",
+    "credit": "Pixabay / ccipeggy",
+    "id": "pixabay:2619380",
+    "url": "https://pixabay.com/get/g61fe838dc13d1dca873a499ae256fae677f37b6bb243a349db8182acff22a3c4b23679fca9cedfdec1750e6e422f96b6a347da1d0d7d07da2e399a910524ecb7_1280.jpg",
+    "query": "supermarket aisle shelves",
+    "luma": 119,
+    "source": "stock"
+  },
+  "where-salon": {
+    "src": "/assets/images/where-salon.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "미용실 · 살롱 — 위생용지 사용처",
+    "credit": "Pixabay / Michelle-Maria",
+    "id": "pixabay:3277314",
+    "url": "https://pixabay.com/get/g8d5898b6428063b01086e9749c2d2961c2a7d66404c5c9894a1c6ebb7dde3cc29d38aa1b340f21a2dbc9b3ec6dd72577a78b1559423cb3fb2896c298ab4f50e7_1280.jpg",
+    "query": "hair salon interior chairs mirror",
+    "luma": 75,
+    "source": "stock"
+  },
+  "where-fitness": {
+    "src": "/assets/images/where-fitness.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "헬스장 — 위생용지 사용처",
+    "credit": "Pixabay / lewisgoodphotos",
+    "id": "pixabay:5031689",
+    "url": "https://pixabay.com/get/g53f0002155a56aa1548bdd159bcedc49c9e4760e8cfe265a313cb34a02c0c343a34a2f2f8be338e9ce5397137a78a4b72a328f0936475e2acab1ba7f082d2d87_1280.jpg",
+    "query": "gym equipment interior fitness",
+    "luma": 121,
+    "source": "stock"
+  },
+  "where-care": {
+    "src": "/assets/images/where-care.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "요양 · 병원 — 위생용지 사용처",
+    "credit": "Pixabay / StockSnap",
+    "id": "pixabay:2563518",
+    "url": "https://pixabay.com/get/gbabf2b7433e9d12b99bed5bc0ee00fb23bda894dbfbbf2b53e9071bbfdc2ae39145366fe1ba8fac4768fef543c627d041a47783a003f7e5b2c4def1d240fe0dc_1280.jpg",
+    "query": "hospital room empty beds",
+    "luma": 98,
+    "source": "stock"
+  },
+  "where-school": {
+    "src": "/assets/images/where-school.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "학교 · 학원 — 위생용지 사용처",
+    "credit": "Pixabay / Taken",
+    "id": "pixabay:470680",
+    "url": "https://pixabay.com/get/g37f7a70fe5648d0d1bdf601d3deec2fa0010b60defbe2d81d11df17333cbb73054f70887577a3dce40b924bbadbb853c95fc1ba673ad7c22cccac0c21f200bd5_1280.jpg",
+    "query": "empty classroom desks chairs",
+    "luma": 114,
+    "source": "stock"
+  },
+  "where-public": {
+    "src": "/assets/images/where-public.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "공공기관 — 위생용지 사용처",
+    "credit": "Pixabay / Pexels",
+    "id": "pixabay:2181968",
+    "url": "https://pixabay.com/get/g83ac9757c5b0e0db16294fd4be5234e9c726fbfeb9cdd0e037123007fc16f8e373d9eb0bfd90d0d5fba694bcfdfed162e38d947a71c5833dbe10e5e142ced6a7_1280.jpg",
+    "query": "library reading room shelves interior",
+    "luma": 180,
+    "source": "stock"
+  },
+  "where-sports": {
+    "src": "/assets/images/where-sports.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "스포츠 시설 — 위생용지 사용처",
+    "credit": "Pixabay / landersb",
+    "id": "pixabay:670052",
+    "url": "https://pixabay.com/get/g366d60e70f9df370b18b40c275c81e99981ac2fa27487a81bfa99038a5cefc4f7613cf45db87e0d926b90e07b9abd5de2f16ab4536176ef660439e2f94230ff0_1280.jpg",
+    "query": "gymnasium basketball court indoor",
+    "luma": 143,
+    "source": "stock"
+  },
+  "where-camping": {
+    "src": "/assets/images/where-camping.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "캠핑 · 레저 — 위생용지 사용처",
+    "credit": "Pixabay / ignartonosbg",
+    "id": "pixabay:8260968",
+    "url": "https://pixabay.com/get/gfa066c77eb9a74668609d27d24fe44781785130f6d00375e8d4397f1e352b635c06b511b8396ae3a73418109e366615a2c0698f9f42e03d8f8a456dc6b39db99_1280.jpg",
+    "query": "campsite tents outdoor daylight",
+    "luma": 126,
+    "source": "stock"
+  },
+  "where-kindergarten": {
+    "src": "/assets/images/where-kindergarten.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "어린이집 · 유치원 — 위생용지 사용처",
+    "credit": "Pixabay / Brendacfeyc",
+    "id": "pixabay:569198",
+    "url": "https://pixabay.com/get/gbc323c231601a6eaea6da1f54b42b0113500c1df5e606d3bdd6a45f2ab1a1acddafcb0ca0e0bf9f2bd6409236db4bb7853134b74bf057acde0c19f9fb9d2ddb8_1280.jpg",
+    "query": "kindergarten playroom toys colorful",
+    "luma": 87,
+    "source": "stock"
+  },
+  "where-store": {
+    "src": "/assets/images/where-store.webp",
+    "width": 800,
+    "height": 600,
+    "alt": "편의점 · 소매 — 위생용지 사용처",
+    "credit": "Pixabay / stevepb",
+    "id": "pixabay:1232944",
+    "url": "https://pixabay.com/get/g3f4511539002b2897303befda4a3681434f07d00db29302e86520223f3bf4feab1e8a909821b1f68fdf312ed09de2b9d3b28371e7e150b4d68389e31570ea050_1280.jpg",
+    "query": "convenience store shelves drinks interior",
+    "luma": 113,
+    "source": "stock"
+  }
+}

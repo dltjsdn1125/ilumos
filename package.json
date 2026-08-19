@@ -1,0 +1,19 @@
+{
+  "name": "ilumos-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "(주)이루모스 홈페이지 리뉴얼 시안 — 키친타월·점보롤티슈·두루마리티슈. 레이아웃/모션은 cinetica.studio 분석 리빌드를 그대로 쓰고 콘텐츠만 교체한 정적 사이트.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "vendor": "node scripts/vendor.mjs",
+    "images": "node scripts/fetch-images.mjs",
+    "setup": "npm run vendor && npm run images && npm run build",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "gsap": "^3.13.0",
+    "lenis": "^1.2.3",
+    "sharp": "^0.34.0"
+  }
+}
