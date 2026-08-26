@@ -98,11 +98,28 @@ const SLOTS = [
         luma 0.04 근처의 빈 픽셀이라 복원할 디테일 자체가 없습니다.
 
      그래서 이 자리는 "실루엣"도 "안개"도 아닌 **빛을 받은 울창한 숲**을 찾습니다.
-     하한 25 는 나무에 실제 계조가 있을 것, 상한 85 는 페이지가 어두울 것. */
+     하한 25 는 나무에 실제 계조가 있을 것, 상한 85 는 페이지가 어두울 것.
+
+     ★ 현재는 스톡을 쓰지 않습니다. `src/hero-source/hero-forest.webp` 에 고객사가
+       제공한 사진이 있어 `bandFrom` 으로 그것을 가공합니다. 그 파일을 지우면
+       아래 `queries` 로 자동 복귀합니다. */
   {
     name: 'hero-forest',
     w: 2560,
     h: 1440,
+    /* 고객사 제공 원본(1920×1440 항공 사진)을 **자르지도 리사이즈하지도 않고**
+       그대로 WebP 로만 변환합니다. 화면에서 어디를 보여줄지는 CSS `cover` 가 정하므로,
+       파일 쪽에서는 픽셀을 하나도 건드리지 않는 것이 화질에 가장 유리합니다.
+
+       앞선 세로 사진(2560×3413)과 달리 이건 가로 4:3 이라 히어로에서 잘려 나가는 양이
+       훨씬 적습니다(세로의 75% 가 화면에 남음. 이전 세로 사진은 42%).
+
+       ⚠ 언샤프를 걸지 않습니다. 측정 선명도가 2287 로 이미 충분하고
+       (이전 원본 406, 그 전 스톡 1915), 여기에 언샤프를 더하면 나뭇잎이 부서집니다.
+       원본이 무를 때만 거는 보정이지 기본값이 아닙니다. */
+    bandFrom: 'hero-forest.jpg',
+    whole: true,
+    quality: 88,
     must: ['forest', 'tree', 'trees', 'woods', 'pine', 'fir', 'spruce', 'woodland', 'canopy'],
     /* 전역 BAN 의 'autumn'·'leaf' 는 숲 사진 대부분을 걷어내므로 여기서는 뺍니다.
        대신 초원·인물·도시 쪽을 막습니다. */
@@ -112,7 +129,7 @@ const SLOTS = [
     minReal: 2400,
     preferPexels: true, // 2560px 이상은 Pexels 원본에서만 나옵니다
     queries: ['dense green forest tall trees', 'dark green forest dense canopy', 'coniferous forest dense trunks'],
-    alt: '빛을 받은 울창한 숲',
+    alt: '숲으로 덮인 산과 계곡을 지나는 도로',
   },
 
   /* About 서브 히어로 — 밝은 대낮의 건물이 카피 뒤에 전면으로 깔립니다.
@@ -561,7 +578,57 @@ async function fillFromStock(slot) {
   return { src: `/assets/images/${slot.name}.webp`, width: slot.w, height: slot.h, alt: slot.alt, placeholder: true }
 }
 
-const fillSlot = (slot) => (slot.from ? fillFromOriginal(slot) : fillFromStock(slot))
+/* ── 3. 고객사 제공 원본에서 "가장 선명한 밴드"를 잘라 쓰는 슬롯 ──────────
+   `from:` 과 다른 점은 두 가지입니다. 입력이 `src/hero-source/` 에 있고(배포되는
+   assets 가 아니라 빌드 입력), 비율을 맞출 때 캔버스를 넓히는 대신 **잘라냅니다.**
+
+   세로 사진을 가로 히어로에 넣어야 하는 상황이라 어차피 잘라야 하는데, 그렇다면
+   어디를 자르느냐가 화질을 좌우합니다. `bandY` 는 밴드별 라플라시안 분산을 실측해
+   고른 위치이고, 가로 폭은 원본 그대로 쓰므로 확대가 발생하지 않습니다. */
+async function fillFromBand(slot) {
+  const src = join(ROOT, 'src', 'hero-source', slot.bandFrom)
+  const raw = await readFile(src)
+  const meta = await sharp(raw).metadata()
+
+  let pipe = sharp(raw)
+  let outW = meta.width
+  let outH = meta.height
+
+  if (!slot.whole) {
+    // 밴드 모드: 목표 비율의 가로 띠만 잘라냅니다.
+    const bandH = Math.min(meta.height, Math.round((meta.width * slot.h) / slot.w))
+    const top = Math.max(0, Math.min(meta.height - bandH, Math.round(meta.height * slot.bandY - bandH / 2)))
+    pipe = pipe.extract({ left: 0, top, width: meta.width, height: bandH })
+    if (meta.width !== slot.w) pipe = pipe.resize(slot.w, slot.h, { fit: 'cover', kernel: 'lanczos3' })
+    outW = slot.w
+    outH = slot.h
+  }
+  // whole 모드에서는 extract 도 resize 도 하지 않습니다 — 원본 픽셀 그대로.
+
+  if (slot.sharpen) pipe = pipe.sharpen(slot.sharpen)
+
+  const webp = await pipe.webp({ quality: slot.quality || 86, effort: 6 }).toBuffer()
+  await writeFile(join(OUT, `${slot.name}.webp`), webp)
+
+  console.log(
+    `  ✓ ${slot.name} <- src/hero-source/${slot.bandFrom} (${meta.width}×${meta.height} -> ${outW}×${outH}${slot.whole ? ', 전체·무크롭' : `, band@${Math.round(slot.bandY * 100)}%`}, ${Math.round(webp.length / 1024)}kb)`
+  )
+  return {
+    src: `/assets/images/${slot.name}.webp`,
+    width: outW,
+    height: outH,
+    alt: slot.alt,
+    credit: `(주)이루모스 제공 사진 (src/hero-source/${slot.bandFrom} 에서 파생)`,
+    source: 'client',
+  }
+}
+
+const fillSlot = (slot) => {
+  /* 고객사 원본이 있으면 스톡보다 우선합니다. 파일을 지우면 자동으로 스톡 검색으로
+     되돌아가므로, 실수로 고객 사진을 덮어쓸 일이 없습니다. */
+  if (slot.bandFrom && existsSync(join(ROOT, 'src', 'hero-source', slot.bandFrom))) return fillFromBand(slot)
+  return slot.from ? fillFromOriginal(slot) : fillFromStock(slot)
+}
 
 /* ── run ────────────────────────────────────────────────────────────────── */
 

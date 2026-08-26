@@ -38,16 +38,32 @@ async function resolve(urlPath) {
   }
 }
 
+/* Dev server: never let the browser cache anything.
+   This file previously sent no cache headers at all, which is NOT the same as
+   "no caching" — with no Cache-Control and no validator, browsers fall back to
+   heuristic freshness and happily reuse a stale copy on a normal reload. That
+   cost real debugging time: an image and a stylesheet were both regenerated on
+   disk and served correctly, yet the page kept rendering the old ones, so a fix
+   that was already live looked like it had done nothing.
+
+   Assets here are rewritten in place under the same filenames (no content hash),
+   so revalidation is the only thing standing between an edit and seeing it. */
+const NO_STORE = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+  Pragma: 'no-cache',
+  Expires: '0',
+}
+
 createServer(async (req, res) => {
   const file = await resolve(req.url === '/' ? '/index.html' : req.url)
   try {
     const body = await readFile(file)
-    res.writeHead(200, { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream' })
+    res.writeHead(200, { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream', ...NO_STORE })
     res.end(body)
   } catch {
     try {
       const body = await readFile(join(ROOT, '404.html'))
-      res.writeHead(404, { 'Content-Type': TYPES['.html'] })
+      res.writeHead(404, { 'Content-Type': TYPES['.html'], ...NO_STORE })
       res.end(body)
     } catch {
       res.writeHead(404).end('Not found')

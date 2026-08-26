@@ -251,18 +251,6 @@
     "luma": 155,
     "source": "stock"
   },
-  "hero-forest": {
-    "src": "/assets/images/hero-forest.webp",
-    "width": 2560,
-    "height": 1440,
-    "alt": "빛을 받은 울창한 숲",
-    "credit": "Pexels / Lauri Poldre",
-    "id": "pexels:29053495",
-    "url": "https://images.pexels.com/photos/29053495/pexels-photo-29053495.jpeg",
-    "query": "dense green forest tall trees",
-    "luma": 66,
-    "source": "stock"
-  },
   "where-restaurant": {
     "src": "/assets/images/where-restaurant.webp",
     "width": 800,
@@ -454,5 +442,13 @@
     "query": "convenience store shelves drinks interior",
     "luma": 113,
     "source": "stock"
+  },
+  "hero-forest": {
+    "src": "/assets/images/hero-forest.webp",
+    "width": 1920,
+    "height": 1440,
+    "alt": "숲으로 덮인 산과 계곡을 지나는 도로",
+    "credit": "(주)이루모스 제공 사진 (src/hero-source/hero-forest.jpg 에서 파생)",
+    "source": "client"
   }
 }

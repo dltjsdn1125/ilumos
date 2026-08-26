@@ -30,7 +30,6 @@
 - `silicon-ingot.webp` — Pixabay / wal_172619 (query: "paper rolls stacked warehouse industry")
 - `hero-poster.webp` — Pexels / Towfiqu barbhuiya (query: "paper towel roll kitchen")
 - `chip-die.webp` — Pexels / Frank Ouyang (query: "paper towel roll white kitchen")
-- `hero-forest.webp` — Pexels / Lauri Poldre (query: "dense green forest tall trees")
 - `where-restaurant.webp` — Pixabay / JamesDeMers (query: "restaurant interior dining tables")
 - `where-catering.webp` — Pixabay / ejilee (query: "cafeteria canteen interior tables")
 - `where-office.webp` — Pixabay / StockSnap (query: "office desks workspace interior")
@@ -47,3 +46,4 @@
 - `where-camping.webp` — Pixabay / ignartonosbg (query: "campsite tents outdoor daylight")
 - `where-kindergarten.webp` — Pixabay / Brendacfeyc (query: "kindergarten playroom toys colorful")
 - `where-store.webp` — Pixabay / stevepb (query: "convenience store shelves drinks interior")
+- `hero-forest.webp` — (주)이루모스 제공 사진 (src/hero-source/hero-forest.jpg 에서 파생)

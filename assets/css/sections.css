@@ -72,30 +72,40 @@
    needs. No DOM-order coupling: hero-gl.js prepends the canvas, and this still
    lands underneath it.
 
-   The photo choice does most of the work here, and it took three tries:
-     · fog shot (luma 75)   -> the additive star pass washed it into grey haze
-     · night silhouette (42) -> stars were perfect, but the trunks were EMPTY
-                                pixels near luma 0.04. Nothing to brighten.
-     · lit pine stand (66)   -> trunks carry real bark texture and tonal range,
-                                so they survive being darkened and still read.
+   The photo is now the CLIENT'S OWN — a Korean mountain forest, replacing the
+   stock pine stand that was here. It is served from a build-time derivative:
+   `src/hero-source/` holds the untouched original and `npm run images` crops the
+   sharpest 16:9 band out of it and applies an unsharp mask. See fetch-images.mjs.
 
-   With a lit source the job flips from lifting shadows to holding the frame
-   down, which is far easier to control — and it is why the multiply "canopy"
-   layer that the silhouette needed is gone. On this photo it was a no-op
-   (everything mapped past its white point) and pure dead weight. */
+   Why the derivative exists: the original is a portrait phone photo shot from a
+   moving vehicle, so it carries motion blur and roughly a fifth of the per-pixel
+   detail the stock shot had. Cropping to the sharpest band and sharpening brings
+   the measured detail back in line; the CSS filter below had to be retuned too,
+   because the settings tuned for a dark stock photo were blowing this one out. */
 .unicorn__scene {
   position: absolute;
   inset: 0;
   z-index: -1;
   opacity: 0; /* only the home hero turns this on */
   background-image: url('/assets/images/hero-forest.webp');
+  /* `cover`: the photo fills the entire hero, edge to edge. The FILE is the
+     untouched original (1920×1440, no build-time crop or resize) — only the
+     viewport decides what is on screen, which is what keeps it at full
+     resolution. Being 4:3 rather than the earlier 3:4 portrait, roughly 75% of
+     its height survives on a landscape viewport instead of 42%, so `50%` can
+     simply centre it: sky and cloud at the top, the valley road through the
+     middle. */
   background-size: cover;
-  background-position: 50% 62%;
-  /* Brightened. An earlier pass pushed this DOWN to 0.72 to protect the page's
-     dark tone, which buried the forest again — the same mistake in the opposite
-     direction. The page reads dark from the sections below and from the radial
-     scrim under the headline, so this layer does not have to be dim as well. */
-  filter: brightness(1.8) contrast(0.98) saturate(1.05);
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  /* Retuned per source. This one arrives at luma 118 — brighter than the photo
+     before it (105) and far brighter than the dark stock forest the filter was
+     originally written for (66). Brightness therefore sits near 1: the lesson
+     from that earlier round is that a multiplier tuned for a dark source blows a
+     daylight one out, and a blown-out flat image reads as "low resolution" even
+     when every pixel is intact. Contrast stays just above 1 to keep the ridges
+     separated after the scrim goes over it. */
+  filter: brightness(1.02) contrast(1.07) saturate(1.02);
   /* Only a short fade under the fixed header bar. */
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #000 15%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, #000 15%);
