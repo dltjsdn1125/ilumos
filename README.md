@@ -93,7 +93,7 @@ npm run serve     # http://localhost:4173
 
 ---
 
-## 페이지 (25)
+## 페이지 (47)
 
 | 라우트 | 비고 |
 |---|---|
@@ -102,6 +102,9 @@ npm run serve     # http://localhost:4173
 | `/portfolio/` + 상세 4 | 사용처 안내 — 외식업장 주방 · 요양/의료시설 · 사무실/공공기관 · 카페/숙박업소 |
 | `/faq/` | 고객센터. 8문항 아코디언 (최소 수량 · 샘플 · 견적 · 배송 · 인쇄 · 품목 선택 · 원지 · 정기 배송) |
 | `/blog/` + 글 6편 | 위생용지 저널. 목록 + 개별 상세, `BlogPosting` JSON-LD |
+| `/shop/` | **온라인 주문** — 제품 20종 카탈로그. 분류 6 + 정렬 4, `ItemList` JSON-LD |
+| `/shop/` 상세 20 | 제품별 규격표 · 수량 · 담기. `Product` + `Offer` JSON-LD |
+| `/shop/cart/` | 장바구니 · 주문서 (⚠ 결제 없음 — MISSING.md > D7) |
 | `/utility-pages/` 2 | 이용약관 · 개인정보 처리방침 (⚠ 법률 검토 필요) |
 | `/404.html` | |
 
@@ -113,7 +116,7 @@ npm run serve     # http://localhost:4173
 | 제품소개 | `/#services` + `/services/` 상세 8 (원본 3품목 포함) |
 | 견적요청 | `/#contact` — 실동작 폼 (검증 + mailto 초안) · 헤더 CTA |
 | 고객센터 | `/faq/` |
-| — | `/portfolio/` 사용처 안내, `/blog/` 저널 (리뉴얼에서 추가) |
+| — | `/portfolio/` 사용처 안내, `/blog/` 저널, `/shop/` 온라인 주문 (리뉴얼에서 추가) |
 
 홈 섹션 순서 (`04-pages/home.json > layout_skeleton`):
 `히어로 → 회사소개 → 사용처 로고월 → 제품소개 → 사용처 안내(3D 캐러셀) → 주문·배송 과정 → 갤러리 → 스크럽 비디오 → FAQ → 견적 요청`

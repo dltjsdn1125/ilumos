@@ -11,12 +11,14 @@
 import {
   site, hero, about, clients, servicesMeta, services, portfolioMeta, portfolio,
   process, faqMeta, faq, contact, blogMeta, posts, marquee as marqueeWords,
+  shopMeta, shopCategories, products,
 } from '../data/site.mjs'
 
 import {
   esc, icon, button, eyebrow, media, stat, sectionHead, pageHero, accordion,
   logoWall, workCard, servicesTabs, carousel3D, pager, contactSection, tagList,
   koDate, breadcrumb,
+  won, priceBlock, qtyStepper, productCard, shopNotice, shopToolbar,
 } from './components.mjs'
 
 /* Panels for the 3D cylinder. Many small images rather than a few large ones —
@@ -559,5 +561,291 @@ export function notFound() {
         </div>
       </div>
     </section>
+  `
+}
+
+/* ── SHOP INDEX ─────────────────────────────────────────────────────────────
+   자사몰 카탈로그. 20종을 전부 서버에서 그려 두고, 분류·정렬은 이미 있는 카드를
+   숨기거나 순서만 바꾸는 방식으로 동작합니다(shop.js). 자바스크립트가 꺼져 있어도
+   제품 20종과 가격이 그대로 보이고 상세 페이지로도 들어갈 수 있습니다. */
+
+export function shopIndex(manifest) {
+  const catOf = (slug) => shopCategories.find((c) => c.slug === slug)
+
+  return `
+    ${pageHero({
+      crumbs: [{ label: 'HOME', href: '/' }, { label: 'SHOP' }],
+      tag: shopMeta.eyebrow,
+      title: shopMeta.heading,
+      subtitle: '온라인 주문',
+      lead: shopMeta.lead,
+      foot: `<span class="eyebrow">${products.length} PRODUCTS</span>${button({ label: '장바구니 보기', href: '/shop/cart/', variant: 'ghost' })}`,
+    })}
+
+    <section class="section padding-global padding-section">
+      <div class="container">
+        ${shopNotice(shopMeta.notice)}
+        ${shopToolbar(shopCategories, products)}
+        <p class="shop-count" data-shop-count role="status" aria-live="polite">전체 ${products.length}개 제품</p>
+
+        <div class="product-grid" data-product-grid data-reveal-group>
+          ${products.map((p, i) => productCard(p, catOf(p.category), i, manifest)).join('')}
+        </div>
+
+        <p class="shop-empty" data-shop-empty hidden>해당 분류에 제품이 없습니다.</p>
+
+        <div class="shop-info" data-reveal-group>
+          <div class="shop-info__item">
+            <p class="shop-info__title" lang="en">SHIPPING<span class="t-ko" lang="ko">배송</span></p>
+            <p class="shop-info__body">전국 배송합니다. ${won(shopMeta.shipping.freeOver)}원 이상 주문은 배송비가 없고, 그 아래는 ${won(shopMeta.shipping.flat)}원이 붙습니다. 지역과 수량에 따라 화물 배송으로 전환될 수 있습니다.</p>
+          </div>
+          <div class="shop-info__item">
+            <p class="shop-info__title" lang="en">PAYMENT<span class="t-ko" lang="ko">결제</span></p>
+            <p class="shop-info__body">주문서를 보내 주시면 확정 견적과 함께 입금 계좌를 안내드립니다. 사업자는 세금계산서 발행이 가능합니다.</p>
+          </div>
+          <div class="shop-info__item">
+            <p class="shop-info__title" lang="en">BULK ORDER<span class="t-ko" lang="ko">대량 주문</span></p>
+            <p class="shop-info__body">박스 단위가 여러 개거나 규격이 다른 경우, 낱개로 담기보다 견적으로 진행하시는 편이 단가가 낮습니다.</p>
+            ${button({ label: '견적 요청', href: '/#contact', variant: 'ghost' })}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    ${contactSection(contact, site)}
+  `
+}
+
+/* ── PRODUCT DETAIL ─────────────────────────────────────────────────────── */
+
+export function productDetail(product, manifest) {
+  const i = products.findIndex((p) => p.slug === product.slug)
+  const cat = shopCategories.find((c) => c.slug === product.category)
+  const service = services.find((s) => s.slug === product.category)
+  const siblings = products.filter((p) => p.category === product.category && p.slug !== product.slug)
+
+  return `
+    ${pageHero({
+      crumbs: [{ label: 'HOME', href: '/' }, { label: 'SHOP', href: '/shop/' }, { label: product.nameLatin }],
+      tag: `(${cat.labelEn})`,
+      title: product.nameLatin,
+      subtitle: product.name,
+      lead: product.summary,
+      foot: `<div class="meta-row"><span>${esc(product.sku)}</span><span>${esc(product.pack)}</span><span>${esc(cat.label)}</span></div>${tagList(product.tags)}`,
+    })}
+
+    <section class="section padding-global padding-section">
+      <div class="container">
+        <div class="product__layout">
+          <div class="product__media">
+            ${media(product.image, { ratio: '4x3', alt: `${product.name} 제품 이미지`, priority: true, manifest })}
+            ${product.badge ? `<span class="product-card__badge">${esc(product.badge)}</span>` : ''}
+          </div>
+
+          <div class="product__panel" data-reveal>
+            <p class="product__panel-cat" lang="en">${esc(cat.labelEn)}</p>
+            <h2 class="product__panel-name">${esc(product.name)}</h2>
+            ${priceBlock(product, { className: 'price--lg' })}
+            <p class="product__panel-pack">${esc(product.pack)} · 최소 1${esc(product.unit)}부터</p>
+
+            <div class="product__buy">
+              ${qtyStepper({ id: `qty-${product.slug}`, label: `${product.name} 수량` })}
+              ${button({ label: '장바구니에 담기', variant: 'solid', size: 'lg', cursor: 'ADD', attrs: ` data-add-to-cart="${esc(product.slug)}" data-qty-source` })}
+            </div>
+            <p class="product__status" role="status" aria-live="polite" data-add-status></p>
+
+            <div class="product__links">
+              ${button({ label: '장바구니 보기', href: '/shop/cart/', variant: 'ghost' })}
+              ${button({ label: '수량 견적 문의', href: '/#contact', variant: 'ghost', cursor: 'MAIL' })}
+            </div>
+
+            <ul class="product__notes">
+              <li>표시 가격은 시안용 예시입니다. 실제 단가는 수량과 납품 조건에 따라 달라집니다.</li>
+              <li>${esc(won(shopMeta.shipping.freeOver))}원 이상 무료배송 · 미만 ${esc(won(shopMeta.shipping.flat))}원</li>
+              <li>평일 오후 2시 이전 주문 건은 당일 출고를 기준으로 합니다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="product__detail">
+          <div>
+            <h2 class="case__block-title">제품 규격</h2>
+            <dl class="product__spec-list" data-reveal-group>
+              ${product.specs.map((s) => `<div class="product__spec"><dt>${esc(s.k)}</dt><dd>${esc(s.v)}</dd></div>`).join('')}
+              <div class="product__spec"><dt>품목 코드</dt><dd>${esc(product.sku)}</dd></div>
+            </dl>
+          </div>
+
+          ${service
+            ? `<aside class="product__about" data-reveal>
+                <h2 class="case__block-title">이 품목에 대해</h2>
+                <p class="product__about-body">${esc(service.body[0])}</p>
+                ${button({ label: `${service.title} 자세히 보기`, href: `/services/${service.slug}/`, variant: 'ghost' })}
+              </aside>`
+            : ''}
+        </div>
+
+        ${siblings.length
+          ? `<section style="padding-top:var(--space-section)">
+              ${sectionHead({ tag: `(${cat.labelEn})`, title: '같은 품목의 다른 규격', stack: true })}
+              <div class="product-grid product-grid--related" data-reveal-group>
+                ${siblings.map((p, idx) => productCard(p, cat, idx, manifest)).join('')}
+              </div>
+            </section>`
+          : ''}
+
+        <div style="padding-top:var(--space-lg)">
+          ${pager({
+            prev: products[i - 1] ? { slug: products[i - 1].slug, title: products[i - 1].name, titleLatin: products[i - 1].nameLatin } : undefined,
+            next: products[i + 1] ? { slug: products[i + 1].slug, title: products[i + 1].name, titleLatin: products[i + 1].nameLatin } : undefined,
+            base: '/shop/',
+          })}
+        </div>
+      </div>
+    </section>
+
+    ${contactSection(contact, site)}
+  `
+}
+
+/* ── CART / ORDER ───────────────────────────────────────────────────────────
+   담긴 내용은 브라우저(localStorage)에만 있습니다. 그래서 이 페이지의 목록은
+   서버에서 그릴 수 없고 shop.js 가 채웁니다 — 대신 카탈로그를 페이지 안에
+   JSON 으로 실어 보내, 담을 때 저장한 값이 아니라 **현재 카탈로그의 값**으로
+   이름과 가격을 다시 읽습니다. 오래된 장바구니가 옛 가격을 들고 있지 않습니다.
+
+   주문서는 결제하지 않습니다. 문의 폼과 같은 방식으로 메일 초안을 만들어
+   넘깁니다 — 정적 호스팅에서 실제로 동작하고, 접수되지 않은 주문을 접수됐다고
+   말하지 않는 유일한 방법입니다. See MISSING.md > D7. */
+
+export function cartPage(manifest) {
+  const catalogue = products.map((p) => {
+    const m = manifest[p.image] || {}
+    const cat = shopCategories.find((c) => c.slug === p.category)
+    return {
+      slug: p.slug,
+      sku: p.sku,
+      name: p.name,
+      nameLatin: p.nameLatin,
+      price: p.price,
+      unit: p.unit,
+      pack: p.pack,
+      category: cat ? cat.label : '',
+      src: m.src || `/assets/images/${p.image}.webp`,
+      w: m.width || 1200,
+      h: m.height || 900,
+    }
+  })
+
+  const field = ({ name, label, type = 'text', required = false, autocomplete = '', placeholder = '' }) => `
+        <p class="field">
+          <label class="field__label" for="of-${name}">${esc(label)}${required ? '<span class="field__req" aria-hidden="true">*</span>' : ''}</label>
+          <input class="field__input" id="of-${name}" name="${name}" type="${type}"
+                 ${required ? 'required' : ''}${autocomplete ? ` autocomplete="${autocomplete}"` : ''}${placeholder ? ` placeholder="${esc(placeholder)}"` : ''}
+                 aria-describedby="of-${name}-err">
+          <span class="field__err" id="of-${name}-err" data-error-for="${name}" role="alert"></span>
+        </p>`
+
+  return `
+    ${pageHero({
+      crumbs: [{ label: 'HOME', href: '/' }, { label: 'SHOP', href: '/shop/' }, { label: 'CART' }],
+      tag: '(Cart & order)',
+      title: 'CART',
+      subtitle: '장바구니 · 주문서',
+      lead: '담으신 품목을 확인하고 주문서를 보내 주시면, 확정 견적과 입금 안내로 회신드립니다.',
+      foot: `${button({ label: '제품 더 보기', href: '/shop/', variant: 'ghost' })}`,
+    })}
+
+    <section class="section padding-global padding-section">
+      <div class="container">
+        ${shopNotice(shopMeta.notice)}
+
+        <div class="cart" data-cart>
+          <div class="cart__main">
+            <div class="cart__list" data-cart-list></div>
+
+            <div class="cart__empty" data-cart-empty>
+              <p class="u-lead">장바구니가 비어 있습니다.</p>
+              <p class="u-dim" style="margin-top:var(--space-2xs)">담으신 품목이 이 브라우저에만 저장되기 때문에, 다른 기기에서 담은 내용은 보이지 않습니다.</p>
+              <div style="margin-top:var(--space-md)">${button({ label: '제품 보러 가기', href: '/shop/', variant: 'solid' })}</div>
+            </div>
+          </div>
+
+          <aside class="cart__summary" data-cart-summary hidden>
+            <p class="cart__summary-title" lang="en">ORDER SUMMARY<span class="t-ko" lang="ko">주문 요약</span></p>
+            <dl class="cart__sums">
+              <div class="cart__sum"><dt>상품 합계</dt><dd data-sum-goods>0원</dd></div>
+              <div class="cart__sum"><dt>배송비</dt><dd data-sum-shipping>0원</dd></div>
+              <div class="cart__sum cart__sum--total"><dt>합계</dt><dd data-sum-total>0원</dd></div>
+            </dl>
+            <p class="cart__summary-note">${esc(won(shopMeta.shipping.freeOver))}원 이상 주문은 배송비가 없습니다. 부가세 포함 여부와 화물 배송 여부는 확정 견적에서 안내드립니다.</p>
+            <button class="cart__clear" type="button" data-cart-clear>장바구니 비우기</button>
+          </aside>
+        </div>
+
+        <section class="order" data-order-section hidden>
+          ${sectionHead({ tag: '(Order form)', title: '주문서 보내기', stack: true })}
+          <p class="u-dim" style="max-width:60ch;margin-bottom:var(--space-md)">
+            이 화면에서는 결제가 이루어지지 않습니다. 아래 내용을 담은 메일 초안이 열리며, 보내 주시면 확정 견적과 입금 계좌로 회신드립니다.
+          </p>
+
+          <form class="order-form" id="order-form" novalidate data-mailto="${esc(site.email)}">
+            <div class="contact-form__row">
+              ${field({ name: 'company', label: '상호 · 사용처', required: true, autocomplete: 'organization' })}
+              ${field({ name: 'name', label: '담당자 성함', required: true, autocomplete: 'name' })}
+            </div>
+            <div class="contact-form__row">
+              ${field({ name: 'phone', label: '연락처', type: 'tel', required: true, autocomplete: 'tel' })}
+              ${field({ name: 'email', label: '이메일', type: 'email', required: true, autocomplete: 'email' })}
+            </div>
+            ${field({ name: 'address', label: '배송지 주소', required: true, autocomplete: 'street-address', placeholder: '건물명 · 층 · 하차 조건까지 적어 주시면 좋습니다' })}
+
+            <p class="field">
+              <label class="field__label" for="of-note">요청 사항</label>
+              <textarea class="field__input field__input--area" id="of-note" name="note" rows="4"
+                        placeholder="희망 납품일, 세금계산서 발행 여부, 하차 조건 등 알려 주실 내용이 있으면 적어 주세요."></textarea>
+            </p>
+
+            <p class="field field--check">
+              <input class="field__check" id="of-consent" name="consent" type="checkbox" required
+                     aria-describedby="of-consent-err">
+              <label for="of-consent">
+                <a href="/utility-pages/privacy-notice/" data-underline-link>개인정보 처리방침</a>에 따른 수집·이용에 동의합니다.<span class="field__req" aria-hidden="true">*</span>
+              </label>
+              <span class="field__err" id="of-consent-err" data-error-for="consent" role="alert"></span>
+            </p>
+
+            <div class="contact-form__actions">
+              ${button({ label: '주문서 보내기', variant: 'solid', size: 'lg', cursor: 'SEND', attrs: ' type="submit"' })}
+              <p class="contact-form__status" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- 장바구니 한 줄의 마크업. shop.js 가 이것을 복제해 값만 채웁니다 —
+         마크업은 템플릿 층이 갖고 자바스크립트는 동작만 갖는다는 이 프로젝트의
+         규칙(components.mjs 머리말)을 장바구니에서도 지키기 위해서입니다. -->
+    <template id="cart-row-template">
+      <article class="cart-row" data-cart-row>
+        <div class="cart-row__media">
+          <img src="/assets/images/og-cover.webp" alt="" width="1200" height="900" loading="lazy" decoding="async">
+        </div>
+        <div class="cart-row__body">
+          <p class="cart-row__cat"></p>
+          <h3 class="cart-row__title"><a href="/shop/"></a></h3>
+          <p class="cart-row__meta"></p>
+        </div>
+        <div class="cart-row__ctrl">
+          ${qtyStepper({ id: 'cart-qty-template', label: '수량' })}
+          <p class="cart-row__price"></p>
+          <button class="cart-row__remove" type="button" data-cart-remove>삭제</button>
+        </div>
+      </article>
+    </template>
+
+    <script type="application/json" id="shop-catalogue">${JSON.stringify(catalogue).replace(/</g, '\\u003c')}</script>
+    <script type="application/json" id="shop-shipping">${JSON.stringify(shopMeta.shipping)}</script>
   `
 }

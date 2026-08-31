@@ -102,6 +102,7 @@ function head(page) {
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/sections.css">
   <link rel="stylesheet" href="/assets/css/pages.css">
+  <link rel="stylesheet" href="/assets/css/shop.css">
   ${jsonLd(page)}`
 }
 
@@ -128,6 +129,21 @@ function brand() {
     </a>`
 }
 
+/**
+ * Header cart link.
+ *
+ * 담긴 수량은 브라우저(localStorage)에만 있으므로 서버 렌더 단계에서는 알 수
+ * 없습니다. 그래서 배지는 항상 `hidden` 으로 나가고 shop.js 가 값을 채우면서
+ * 벗깁니다 — 비어 있을 때 "0" 이 잠깐 보였다 사라지는 일이 없습니다.
+ */
+function cartLink() {
+  return `<a class="cart-link" href="/shop/cart/" data-cart-link data-cursor="CART">
+            ${icon.bag}
+            <span class="cart-link__label" lang="en">CART</span>
+            <span class="cart-link__count" data-cart-count hidden>0</span>
+          </a>`
+}
+
 /* The analysed original carried an EN/ES switcher ([data-lang-hover]). This
    build ships Korean only, so the control was removed rather than left pointing
    at a route that does not exist. See MISSING.md > C9. */
@@ -141,6 +157,7 @@ function header() {
           ${nav.map((n) => `<a class="nav-desktop__link" href="${esc(n.href)}" data-underline-link>${esc(n.label)}</a>`).join('')}
         </nav>
         <div class="header__actions">
+          ${cartLink()}
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-overlay">
             <span class="menu-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
             <span>MENU</span>
@@ -203,6 +220,8 @@ function footer(services, portfolio) {
         <div>
           <p class="footer__col-title">바로가기</p>
           <div class="footer__links">
+            <a href="/shop/">온라인 주문</a>
+            <a href="/shop/cart/">장바구니 · 주문서</a>
             <a href="/portfolio/">사용처 안내</a>
             <a href="/faq/">고객센터</a>
             <a href="/blog/">위생용지 저널</a>

@@ -13,7 +13,7 @@ import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { site, services, portfolio, legal, faq, posts } from '../src/data/site.mjs'
+import { site, services, portfolio, legal, faq, posts, products, shopCategories, shopMeta } from '../src/data/site.mjs'
 import { layout } from '../src/templates/layout.mjs'
 import * as P from '../src/templates/pages.mjs'
 import { starfieldCss } from '../src/templates/starfield.mjs'
@@ -99,6 +99,72 @@ const routes = [
       },
     ],
   })),
+  /* ── shop ──────────────────────────────────────────────────────────────
+     자사몰 라우트. 카탈로그 20종은 전부 정적으로 렌더되고, 장바구니만
+     브라우저에 삽니다(shop.js). 결제·재고 연동은 없습니다 — MISSING.md > D7.
+
+     상세 페이지의 Product JSON-LD 에는 Offer 를 넣되 `priceValidUntil` 이나
+     재고 상태는 넣지 않습니다. 가격 자체가 시안용 예시라, 검색엔진에 확정된
+     판매 조건인 것처럼 신호를 보내지 않기 위해서입니다. */
+  {
+    path: '/shop/',
+    title: '온라인 주문',
+    description: '키친타월, 점보롤티슈, 두루마리티슈부터 냅킨·핸드타월·종이호일까지 자주 나가는 규격 20종을 골라 바로 주문하실 수 있습니다.',
+    body: P.shopIndex(manifest),
+    priority: '0.9',
+    jsonLdExtra: [
+      {
+        '@type': 'ItemList',
+        name: '(주)이루모스 온라인 주문 카탈로그',
+        numberOfItems: products.length,
+        itemListElement: products.map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: `${site.origin}/shop/${p.slug}/`,
+          name: p.name,
+        })),
+      },
+    ],
+  },
+  {
+    path: '/shop/cart/',
+    title: '장바구니 · 주문서',
+    description: '담으신 품목을 확인하고 주문서를 보내시면 확정 견적과 입금 안내로 회신드립니다.',
+    body: P.cartPage(manifest),
+    priority: '0.4',
+  },
+  ...products.map((p) => {
+    const cat = shopCategories.find((c) => c.slug === p.category)
+    return {
+      path: `/shop/${p.slug}/`,
+      title: `${p.name} — 온라인 주문`,
+      description: `${p.summary} ${p.pack} · 품목 코드 ${p.sku}. ${site.name}에서 바로 주문하실 수 있습니다.`,
+      body: P.productDetail(p, manifest),
+      ogType: 'product',
+      priority: '0.7',
+      jsonLdExtra: [
+        {
+          '@type': 'Product',
+          name: p.name,
+          alternateName: p.nameLatin,
+          sku: p.sku,
+          category: cat ? cat.label : '위생용지',
+          description: p.summary,
+          image: `${site.origin}${(manifest[p.image] || {}).src || `/assets/images/${p.image}.webp`}`,
+          brand: { '@id': `${site.origin}/#organization` },
+          manufacturer: { '@id': `${site.origin}/#organization` },
+          offers: {
+            '@type': 'Offer',
+            url: `${site.origin}/shop/${p.slug}/`,
+            price: p.price,
+            priceCurrency: 'KRW',
+            eligibleQuantity: { '@type': 'QuantitativeValue', minValue: 1, unitText: p.unit },
+            seller: { '@id': `${site.origin}/#organization` },
+          },
+        },
+      ],
+    }
+  }),
   {
     path: '/faq/',
     title: '고객센터 · 자주 묻는 질문',
@@ -155,7 +221,7 @@ const routes = [
 
 /* ── clean previously generated HTML (never touches assets/ or src/) ─────── */
 
-for (const dir of ['portfolio', 'services', 'utility-pages', 'faq', 'blog']) {
+for (const dir of ['portfolio', 'services', 'utility-pages', 'faq', 'blog', 'shop']) {
   await rm(join(ROOT, dir), { recursive: true, force: true })
 }
 

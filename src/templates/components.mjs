@@ -25,6 +25,9 @@ export const icon = {
   arrow: `<svg class="button__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   arrowDown: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   diagonal: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 11L11 5M6 5h5v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  /* 장바구니. 헤더에서 16px 안팎으로 렌더되므로 손잡이는 곡선 하나, 몸통은
+     사다리꼴 하나로만 그렸습니다 — 획이 늘면 그 크기에서 뭉갭니다. */
+  bag: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.4 5.5h9.2l-.75 8a1 1 0 0 1-1 .9H5.15a1 1 0 0 1-1-.9zM5.9 5.5V4a2.1 2.1 0 0 1 4.2 0v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 }
 
 /* ── atoms ──────────────────────────────────────────────────────────────── */
@@ -375,4 +378,102 @@ export function contactSection(contact, site, { id = 'contact' } = {}) {
         </div>
       </div>
     </section>`
+}
+
+/* ── shop atoms ─────────────────────────────────────────────────────────────
+   자사몰 화면 전용 조각들. 나머지 사이트와 같은 규칙을 씁니다 — 표시 제목은
+   영문(`lang="en"`)이고 한글 이름은 `.t-ko` 로 그 아래 붙습니다. 다만 구매 화면은
+   한글 이름이 판단의 근거라 shop.css 에서 `.t-ko` 를 본문색·한 단계 큰 크기로
+   되돌려 놓았습니다. 구조는 그대로 두고 무게만 바꾼 것입니다. */
+
+/* 1,000 단위 구분. Intl 대신 정규식을 쓰는 이유는 빌드와 브라우저(shop.js)가
+   같은 문자열을 만들어야 하기 때문입니다 — 로케일 데이터에 기대지 않습니다. */
+export const won = (n) => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+export function priceBlock(product, { className = '' } = {}) {
+  return `<p class="${cx('price', className)}">
+          <span class="price__value">${won(product.price)}</span><span class="price__unit">원 / ${esc(product.unit)}</span>
+        </p>`
+}
+
+/**
+ * 수량 스테퍼. `-` / `+` 버튼과 직접 입력이 같은 값을 다루므로 input 이 진짜
+ * 상태이고 버튼은 그 값을 바꾸기만 합니다. 최소 1, 최대 99.
+ */
+export function qtyStepper({ id, value = 1, label = '수량' }) {
+  return `<div class="qty" data-qty>
+          <label class="u-sr-only" for="${esc(id)}">${esc(label)}</label>
+          <button class="qty__btn" type="button" data-qty-step="-1" aria-label="수량 줄이기">−</button>
+          <input class="qty__input" id="${esc(id)}" type="number" inputmode="numeric" min="1" max="99" step="1" value="${value}">
+          <button class="qty__btn" type="button" data-qty-step="1" aria-label="수량 늘리기">+</button>
+        </div>`
+}
+
+/**
+ * 제품 카드.
+ *
+ * `data-*` 는 shop.js 의 분류/정렬이 읽는 값입니다. DOM 을 다시 만들지 않고
+ * 이미 그려진 카드를 숨기거나 순서만 바꾸므로, 자바스크립트가 꺼져 있어도
+ * 20종이 전부 그대로 보입니다.
+ */
+export function productCard(product, category, index, manifest) {
+  return `<article class="product-card" data-product
+            data-category="${esc(product.category)}"
+            data-price="${product.price}"
+            data-name="${esc(product.name)}"
+            data-order="${index}">
+        <a class="product-card__media" href="/shop/${esc(product.slug)}/" data-cursor="VIEW" tabindex="-1" aria-hidden="true">
+          ${media(product.image, { ratio: '4x3', alt: '', zoom: true, manifest })}
+          ${product.badge ? `<span class="product-card__badge">${esc(product.badge)}</span>` : ''}
+        </a>
+        <div class="product-card__body">
+          <span class="product-card__cat">${esc(category.labelEn)}</span>
+          <h3 class="product-card__title" lang="en"><a href="/shop/${esc(product.slug)}/">${esc(product.nameLatin)}</a><span class="t-ko" lang="ko">${esc(product.name)}</span></h3>
+          <p class="product-card__spec">${esc(product.pack)} · ${esc(product.sku)}</p>
+          <div class="product-card__foot">
+            ${priceBlock(product)}
+            <button class="product-card__add" type="button"
+                    data-add-to-cart="${esc(product.slug)}" data-cursor="ADD"
+                    aria-label="${esc(product.name)} 장바구니에 담기">담기${icon.arrow}</button>
+          </div>
+        </div>
+      </article>`
+}
+
+/**
+ * 예시 데이터임을 밝히는 고지 줄. legal 페이지의 `.legal__notice` 와 같은 역할이며
+ * 같은 이유로 존재합니다 — 지어낸 수치를 지어낸 줄 모르게 두지 않습니다.
+ */
+export function shopNotice(text) {
+  return `<p class="shop-notice" role="note">${esc(text)}</p>`
+}
+
+/* 필터 칩 + 정렬. 자바스크립트가 없으면 칩은 눌러도 아무 일이 없고 목록은
+   전체가 보입니다 — 없는 기능을 있는 것처럼 두지 않기 위해 `hidden` 대신
+   `.js` 스코프(base 의 documentElement 클래스)로 노출합니다. */
+export function shopToolbar(categories, products) {
+  const count = (slug) => products.filter((p) => p.category === slug).length
+  return `<div class="shop-toolbar" data-shop-toolbar>
+        <div class="shop-filter" role="group" aria-label="품목 분류">
+          <button class="shop-filter__chip is-active" type="button" data-filter="all" aria-pressed="true">
+            <span lang="en">ALL</span><span class="shop-filter__n">${products.length}</span>
+          </button>
+          ${categories
+            .map(
+              (c) => `<button class="shop-filter__chip" type="button" data-filter="${esc(c.slug)}" aria-pressed="false">
+            <span lang="en">${esc(c.labelEn)}</span><span class="shop-filter__n">${count(c.slug)}</span>
+          </button>`
+            )
+            .join('')}
+        </div>
+        <p class="shop-sort">
+          <label for="shop-sort-select">정렬</label>
+          <select class="shop-sort__select" id="shop-sort-select" data-shop-sort>
+            <option value="default">추천순</option>
+            <option value="price-asc">낮은 가격순</option>
+            <option value="price-desc">높은 가격순</option>
+            <option value="name">이름순</option>
+          </select>
+        </p>
+      </div>`
 }

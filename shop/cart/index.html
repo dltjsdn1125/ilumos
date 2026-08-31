@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>장바구니 · 주문서 | (주)이루모스</title>
+  <meta name="description" content="담으신 품목을 확인하고 주문서를 보내시면 확정 견적과 입금 안내로 회신드립니다.">
+  <link rel="canonical" href="https://www.ilumos.co.kr/shop/cart/">
+  <meta name="theme-color" content="#000000">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="(주)이루모스">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:title" content="장바구니 · 주문서 | (주)이루모스">
+  <meta property="og:description" content="담으신 품목을 확인하고 주문서를 보내시면 확정 견적과 입금 안내로 회신드립니다.">
+  <meta property="og:url" content="https://www.ilumos.co.kr/shop/cart/">
+  <meta property="og:image" content="https://www.ilumos.co.kr/assets/images/og-cover.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="장바구니 · 주문서 | (주)이루모스">
+  <meta name="twitter:description" content="담으신 품목을 확인하고 주문서를 보내시면 확정 견적과 입금 안내로 회신드립니다.">
+  <meta name="twitter:image" content="https://www.ilumos.co.kr/assets/images/og-cover.webp">
+
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/favicon.svg">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+  <link rel="stylesheet" href="/assets/css/lenis.css">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/starfield.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/sections.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  <link rel="stylesheet" href="/assets/css/shop.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.ilumos.co.kr/#organization","name":"(주)이루모스","url":"https://www.ilumos.co.kr/","email":"edward1105@naver.com","telephone":"063-243-3240","faxNumber":"063-243-7730","founder":{"@type":"Person","name":"김상우"},"description":"(주)이루모스는 키친타월, 점보롤티슈, 두루마리티슈를 공급하는 위생용지 기업입니다. 가정용 소량부터 업소용 대량 납품, 로고 인쇄 주문제작까지 상담해 드립니다.","address":{"@type":"PostalAddress","streetAddress":"두마면 입암길 76-18 (입암리 653)","addressLocality":"계룡시","addressRegion":"충청남도","addressCountry":"KR"}},{"@type":"WebSite","@id":"https://www.ilumos.co.kr/#website","url":"https://www.ilumos.co.kr/","name":"(주)이루모스","inLanguage":"ko","publisher":{"@id":"https://www.ilumos.co.kr/#organization"}},{"@type":"WebPage","@id":"https://www.ilumos.co.kr/shop/cart/#webpage","url":"https://www.ilumos.co.kr/shop/cart/","name":"장바구니 · 주문서","description":"담으신 품목을 확인하고 주문서를 보내시면 확정 견적과 입금 안내로 회신드립니다.","isPartOf":{"@id":"https://www.ilumos.co.kr/#website"},"inLanguage":"ko"}]}</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <div class="unicorn__item" aria-hidden="true">
+    <div class="unicorn__scene"></div>
+    <div class="unicorn__fallback"></div>
+    <div class="unicorn__grain"></div>
+  </div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+  <div class="cursor-star" aria-hidden="true">
+    <span class="cursor-star__glow"></span>
+    <svg class="cursor-star__mark" viewBox="0 0 24 24" focusable="false">
+      <path d="M12 0 C12.6 6.5 17.5 11.4 24 12 C17.5 12.6 12.6 17.5 12 24 C11.4 17.5 6.5 12.6 0 12 C6.5 11.4 11.4 6.5 12 0 Z"/>
+    </svg>
+  </div>
+  <header class="header theme-dark padding-global" data-theme-watch>
+    <div class="container header__inner">
+      <div class="header__bar">
+        <a class="brand" href="/" aria-label="(주)이루모스 홈">
+      <span>ILUMOS</span><span class="brand__dot" aria-hidden="true"></span>
+    </a>
+        <nav class="nav-desktop" aria-label="주요">
+          <a class="nav-desktop__link" href="/#about" data-underline-link>회사소개</a><a class="nav-desktop__link" href="/#services" data-underline-link>제품소개</a><a class="nav-desktop__link" href="/shop/" data-underline-link>온라인 주문</a><a class="nav-desktop__link" href="/portfolio/" data-underline-link>사용처 안내</a><a class="nav-desktop__link" href="/#process" data-underline-link>주문 · 배송</a><a class="nav-desktop__link" href="/faq/" data-underline-link>고객센터</a><a class="nav-desktop__link" href="/blog/" data-underline-link>위생용지 저널</a>
+        </nav>
+        <div class="header__actions">
+          <a class="cart-link" href="/shop/cart/" data-cart-link data-cursor="CART">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.4 5.5h9.2l-.75 8a1 1 0 0 1-1 .9H5.15a1 1 0 0 1-1-.9zM5.9 5.5V4a2.1 2.1 0 0 1 4.2 0v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="cart-link__label" lang="en">CART</span>
+            <span class="cart-link__count" data-cart-count hidden>0</span>
+          </a>
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-overlay">
+            <span class="menu-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span>MENU</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="menu-overlay theme-dark padding-global" id="menu-overlay" role="dialog" aria-modal="true" aria-label="사이트 메뉴">
+    <div class="container menu-overlay__head">
+      <a class="brand" href="/" aria-label="(주)이루모스 홈">
+      <span>ILUMOS</span><span class="brand__dot" aria-hidden="true"></span>
+    </a>
+      <span class="eyebrow">(Menu)</span>
+    </div>
+    <div class="container menu-overlay__body">
+      <nav class="menu-overlay__list" aria-label="전체">
+        <ul>
+          <li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/#about" data-cursor="GO">
+                <span class="menu-overlay__num">01</span><span>회사소개</span>
+              </a>
+            </li><li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/#services" data-cursor="GO">
+                <span class="menu-overlay__num">02</span><span>제품소개</span>
+              </a>
+            </li><li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/shop/" data-cursor="GO">
+                <span class="menu-overlay__num">03</span><span>온라인 주문</span>
+              </a>
+            </li><li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/portfolio/" data-cursor="GO">
+                <span class="menu-overlay__num">04</span><span>사용처 안내</span>
+              </a>
+            </li><li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/#process" data-cursor="GO">
+                <span class="menu-overlay__num">05</span><span>주문 · 배송</span>
+              </a>
+            </li><li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/faq/" data-cursor="GO">
+                <span class="menu-overlay__num">06</span><span>고객센터</span>
+              </a>
+            </li><li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/blog/" data-cursor="GO">
+                <span class="menu-overlay__num">07</span><span>위생용지 저널</span>
+              </a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="container menu-overlay__foot">
+      <a href="mailto:edward1105@naver.com" data-underline-link>edward1105@naver.com</a>
+      <div class="meta-row">
+        <a href="tel:0632433240" data-underline-link>TEL 063-243-3240</a>
+        <span>FAX 063-243-7730</span>
+        
+      </div>
+    </div>
+  </div>
+  <main class="page-main" id="main">
+
+    <section class="page-hero theme-dark padding-global">
+      <div class="container page-hero__inner">
+        <nav aria-label="브레드크럼">
+        <ol class="breadcrumb">
+          <li><a href="/">HOME</a></li><li><a href="/shop/">SHOP</a></li><li aria-current="page">CART</li>
+        </ol>
+      </nav>
+        <div class="section-head__eyebrow"><span class="eyebrow" data-scramble>(Cart &amp; order)</span></div>
+        <h1 class="page-hero__title" lang="en" id="page-title" aria-labelledby="page-title-ko page-title" data-split>CART</h1>
+        <p class="t-ko" id="page-title-ko" lang="ko" style="margin-top:var(--space-2xs);font-size:var(--t-md)" data-reveal>장바구니 · 주문서</p>
+        <p class="page-hero__lead u-lead" data-split>담으신 품목을 확인하고 주문서를 보내 주시면, 확정 견적과 입금 안내로 회신드립니다.</p>
+        <div class="page-hero__foot" data-reveal><a class="button button--ghost" href="/shop/"><span class="button__label">제품 더 보기</span><svg class="button__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+      </div>
+    </section>
+
+    <section class="section padding-global padding-section">
+      <div class="container">
+        <p class="shop-notice" role="note">표시된 가격 · 규격 · 배송 조건은 화면 구성을 보여 드리기 위한 예시입니다. 실제 판매가는 수량과 납품 조건에 따라 달라지며, 주문서를 보내 주시면 확정 견적으로 회신드립니다.</p>
+
+        <div class="cart" data-cart>
+          <div class="cart__main">
+            <div class="cart__list" data-cart-list></div>
+
+            <div class="cart__empty" data-cart-empty>
+              <p class="u-lead">장바구니가 비어 있습니다.</p>
+              <p class="u-dim" style="margin-top:var(--space-2xs)">담으신 품목이 이 브라우저에만 저장되기 때문에, 다른 기기에서 담은 내용은 보이지 않습니다.</p>
+              <div style="margin-top:var(--space-md)"><a class="button button--solid" href="/shop/"><span class="button__label">제품 보러 가기</span><svg class="button__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+            </div>
+          </div>
+
+          <aside class="cart__summary" data-cart-summary hidden>
+            <p class="cart__summary-title" lang="en">ORDER SUMMARY<span class="t-ko" lang="ko">주문 요약</span></p>
+            <dl class="cart__sums">
+              <div class="cart__sum"><dt>상품 합계</dt><dd data-sum-goods>0원</dd></div>
+              <div class="cart__sum"><dt>배송비</dt><dd data-sum-shipping>0원</dd></div>
+              <div class="cart__sum cart__sum--total"><dt>합계</dt><dd data-sum-total>0원</dd></div>
+            </dl>
+            <p class="cart__summary-note">100,000원 이상 주문은 배송비가 없습니다. 부가세 포함 여부와 화물 배송 여부는 확정 견적에서 안내드립니다.</p>
+            <button class="cart__clear" type="button" data-cart-clear>장바구니 비우기</button>
+          </aside>
+        </div>
+
+        <section class="order" data-order-section hidden>
+          <header class="section-head section-head--stack">
+        <div>
+          <div class="section-head__eyebrow"><span class="eyebrow" data-scramble>(Order form)</span></div>
+          <h2 class="section-head__title" data-split>주문서 보내기</h2>
+        </div>
+        
+      </header>
+          <p class="u-dim" style="max-width:60ch;margin-bottom:var(--space-md)">
+            이 화면에서는 결제가 이루어지지 않습니다. 아래 내용을 담은 메일 초안이 열리며, 보내 주시면 확정 견적과 입금 계좌로 회신드립니다.
+          </p>
+
+          <form class="order-form" id="order-form" novalidate data-mailto="edward1105@naver.com">
+            <div class="contact-form__row">
+              
+        <p class="field">
+          <label class="field__label" for="of-company">상호 · 사용처<span class="field__req" aria-hidden="true">*</span></label>
+          <input class="field__input" id="of-company" name="company" type="text"
+                 required autocomplete="organization"
+                 aria-describedby="of-company-err">
+          <span class="field__err" id="of-company-err" data-error-for="company" role="alert"></span>
+        </p>
+              
+        <p class="field">
+          <label class="field__label" for="of-name">담당자 성함<span class="field__req" aria-hidden="true">*</span></label>
+          <input class="field__input" id="of-name" name="name" type="text"
+                 required autocomplete="name"
+                 aria-describedby="of-name-err">
+          <span class="field__err" id="of-name-err" data-error-for="name" role="alert"></span>
+        </p>
+            </div>
+            <div class="contact-form__row">
+              
+        <p class="field">
+          <label class="field__label" for="of-phone">연락처<span class="field__req" aria-hidden="true">*</span></label>
+          <input class="field__input" id="of-phone" name="phone" type="tel"
+                 required autocomplete="tel"
+                 aria-describedby="of-phone-err">
+          <span class="field__err" id="of-phone-err" data-error-for="phone" role="alert"></span>
+        </p>
+              
+        <p class="field">
+          <label class="field__label" for="of-email">이메일<span class="field__req" aria-hidden="true">*</span></label>
+          <input class="field__input" id="of-email" name="email" type="email"
+                 required autocomplete="email"
+                 aria-describedby="of-email-err">
+          <span class="field__err" id="of-email-err" data-error-for="email" role="alert"></span>
+        </p>
+            </div>
+            
+        <p class="field">
+          <label class="field__label" for="of-address">배송지 주소<span class="field__req" aria-hidden="true">*</span></label>
+          <input class="field__input" id="of-address" name="address" type="text"
+                 required autocomplete="street-address" placeholder="건물명 · 층 · 하차 조건까지 적어 주시면 좋습니다"
+                 aria-describedby="of-address-err">
+          <span class="field__err" id="of-address-err" data-error-for="address" role="alert"></span>
+        </p>
+
+            <p class="field">
+              <label class="field__label" for="of-note">요청 사항</label>
+              <textarea class="field__input field__input--area" id="of-note" name="note" rows="4"
+                        placeholder="희망 납품일, 세금계산서 발행 여부, 하차 조건 등 알려 주실 내용이 있으면 적어 주세요."></textarea>
+            </p>
+
+            <p class="field field--check">
+              <input class="field__check" id="of-consent" name="consent" type="checkbox" required
+                     aria-describedby="of-consent-err">
+              <label for="of-consent">
+                <a href="/utility-pages/privacy-notice/" data-underline-link>개인정보 처리방침</a>에 따른 수집·이용에 동의합니다.<span class="field__req" aria-hidden="true">*</span>
+              </label>
+              <span class="field__err" id="of-consent-err" data-error-for="consent" role="alert"></span>
+            </p>
+
+            <div class="contact-form__actions">
+              <button class="button button--solid button--lg" type="button" data-cursor="SEND" type="submit"><span class="button__label">주문서 보내기</span><svg class="button__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <p class="contact-form__status" role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- 장바구니 한 줄의 마크업. shop.js 가 이것을 복제해 값만 채웁니다 —
+         마크업은 템플릿 층이 갖고 자바스크립트는 동작만 갖는다는 이 프로젝트의
+         규칙(components.mjs 머리말)을 장바구니에서도 지키기 위해서입니다. -->
+    <template id="cart-row-template">
+      <article class="cart-row" data-cart-row>
+        <div class="cart-row__media">
+          <img src="/assets/images/og-cover.webp" alt="" width="1200" height="900" loading="lazy" decoding="async">
+        </div>
+        <div class="cart-row__body">
+          <p class="cart-row__cat"></p>
+          <h3 class="cart-row__title"><a href="/shop/"></a></h3>
+          <p class="cart-row__meta"></p>
+        </div>
+        <div class="cart-row__ctrl">
+          <div class="qty" data-qty>
+          <label class="u-sr-only" for="cart-qty-template">수량</label>
+          <button class="qty__btn" type="button" data-qty-step="-1" aria-label="수량 줄이기">−</button>
+          <input class="qty__input" id="cart-qty-template" type="number" inputmode="numeric" min="1" max="99" step="1" value="1">
+          <button class="qty__btn" type="button" data-qty-step="1" aria-label="수량 늘리기">+</button>
+        </div>
+          <p class="cart-row__price"></p>
+          <button class="cart-row__remove" type="button" data-cart-remove>삭제</button>
+        </div>
+      </article>
+    </template>
+
+    <script type="application/json" id="shop-catalogue">[{"slug":"kitchen-towel-home-150","sku":"ILM-KT-150H","name":"가정용 키친타월 2겹 150매","nameLatin":"HOME KITCHEN TOWEL 2PLY","price":14900,"unit":"팩","pack":"6롤 / 팩","category":"키친타월","src":"/assets/images/service-parts.webp","w":1200,"h":675},{"slug":"kitchen-towel-pro-300","sku":"ILM-KT-300P","name":"업소용 대용량 키친타월 300m","nameLatin":"PRO KITCHEN TOWEL 300M","price":28000,"unit":"박스","pack":"2롤 / 박스","category":"키친타월","src":"/assets/images/service-reliability.webp","w":1200,"h":675},{"slug":"kitchen-towel-3ply","sku":"ILM-KT-120T","name":"3겹 프리미엄 키친타월 120매","nameLatin":"PREMIUM KITCHEN TOWEL 3PLY","price":18500,"unit":"팩","pack":"4롤 / 팩","category":"키친타월","src":"/assets/images/circuit-macro.webp","w":1200,"h":1200},{"slug":"kitchen-towel-box-12","sku":"ILM-KT-B12","name":"키친타월 12롤 박스","nameLatin":"KITCHEN TOWEL CASE 12","price":46000,"unit":"박스","pack":"12롤 / 박스","category":"키친타월","src":"/assets/images/server-rack.webp","w":1600,"h":1067},{"slug":"jumbo-roll-300","sku":"ILM-JR-300","name":"업소용 점보롤 2겹 300m","nameLatin":"JUMBO ROLL 2PLY 300M","price":42000,"unit":"박스","pack":"12롤 / 박스","category":"점보롤티슈","src":"/assets/images/service-clean.webp","w":1200,"h":675},{"slug":"jumbo-roll-coreless","sku":"ILM-JR-250C","name":"무심지 점보롤 2겹 250m","nameLatin":"CORELESS JUMBO ROLL 250M","price":45000,"unit":"박스","pack":"12롤 / 박스","category":"점보롤티슈","src":"/assets/images/cleanroom-bay.webp","w":1200,"h":800},{"slug":"jumbo-roll-eco","sku":"ILM-JR-400E","name":"재생 점보롤 1겹 400m","nameLatin":"RECYCLED JUMBO ROLL 400M","price":33000,"unit":"박스","pack":"12롤 / 박스","category":"점보롤티슈","src":"/assets/images/chip-die.webp","w":1200,"h":1600},{"slug":"jumbo-roll-premium","sku":"ILM-JR-200T","name":"점보롤 3겹 엠보싱 200m","nameLatin":"PREMIUM JUMBO ROLL 3PLY","price":52000,"unit":"박스","pack":"12롤 / 박스","category":"점보롤티슈","src":"/assets/images/hero-poster.webp","w":2560,"h":1440},{"slug":"toilet-tissue-home-30","sku":"ILM-TT-30H","name":"가정용 두루마리 2겹 30m","nameLatin":"HOME TOILET TISSUE 30M","price":21000,"unit":"박스","pack":"30롤 / 박스","category":"두루마리티슈","src":"/assets/images/service-ceramic.webp","w":1200,"h":675},{"slug":"toilet-tissue-pro-50","sku":"ILM-TT-50P","name":"업소용 두루마리 2겹 50m","nameLatin":"PRO TOILET TISSUE 50M","price":27500,"unit":"박스","pack":"24롤 / 박스","category":"두루마리티슈","src":"/assets/images/chip-array.webp","w":1200,"h":800},{"slug":"toilet-tissue-3ply","sku":"ILM-TT-25T","name":"3겹 천연펄프 두루마리 25m","nameLatin":"NATURAL PULP TISSUE 3PLY","price":34000,"unit":"박스","pack":"30롤 / 박스","category":"두루마리티슈","src":"/assets/images/silicon-wafer.webp","w":900,"h":1200},{"slug":"toilet-tissue-eco","sku":"ILM-TT-50E","name":"재생 두루마리 1겹 50m","nameLatin":"RECYCLED TOILET TISSUE 50M","price":24000,"unit":"박스","pack":"40롤 / 박스","category":"두루마리티슈","src":"/assets/images/silicon-ingot.webp","w":1200,"h":1200},{"slug":"facial-tissue-200","sku":"ILM-FT-200","name":"각티슈 2겹 200매","nameLatin":"FACIAL TISSUE BOX 200","price":26000,"unit":"박스","pack":"20갑 / 박스","category":"미용티슈 · 냅킨","src":"/assets/images/service-inspection.webp","w":1200,"h":675},{"slug":"napkin-table-6fold","sku":"ILM-NP-6F","name":"식탁 냅킨 6절 5,000매","nameLatin":"TABLE NAPKIN 6-FOLD","price":31000,"unit":"박스","pack":"5,000매 / 박스","category":"미용티슈 · 냅킨","src":"/assets/images/nano-texture.webp","w":1000,"h":1000},{"slug":"napkin-printed","sku":"ILM-NP-OEM","name":"로고 인쇄 냅킨 (주문제작)","nameLatin":"PRINTED NAPKIN — MADE TO ORDER","price":89000,"unit":"박스","pack":"10,000매 / 박스","category":"미용티슈 · 냅킨","src":"/assets/images/service-packaging.webp","w":1200,"h":675},{"slug":"napkin-kraft","sku":"ILM-NP-KR","name":"무표백 크라프트 냅킨 3,000매","nameLatin":"UNBLEACHED KRAFT NAPKIN","price":24500,"unit":"박스","pack":"3,000매 / 박스","category":"미용티슈 · 냅킨","src":"/assets/images/fab-equipment.webp","w":1600,"h":1067},{"slug":"hand-towel-multifold","sku":"ILM-HT-MF","name":"멀티폴드 핸드타월 200매","nameLatin":"MULTIFOLD HAND TOWEL","price":38000,"unit":"박스","pack":"20속 / 박스","category":"핸드타월","src":"/assets/images/service-coating.webp","w":1200,"h":675},{"slug":"hand-towel-dispenser","sku":"ILM-HT-DSP","name":"핸드타월 디스펜서 (벽걸이)","nameLatin":"HAND TOWEL DISPENSER","price":19000,"unit":"개","pack":"1개","category":"핸드타월","src":"/assets/images/probe-station.webp","w":1600,"h":1067},{"slug":"baking-paper-roll","sku":"ILM-BP-R50","name":"종이호일 롤 30cm × 50m","nameLatin":"BAKING PAPER ROLL 50M","price":12000,"unit":"롤","pack":"1롤","category":"종이호일","src":"/assets/images/service-vacuum.webp","w":1200,"h":675},{"slug":"baking-paper-sheet","sku":"ILM-BP-S46","name":"종이호일 재단 시트 40 × 60cm","nameLatin":"BAKING PAPER SHEET 40x60","price":23000,"unit":"박스","pack":"500매 / 박스","category":"종이호일","src":"/assets/images/lab-optics.webp","w":1600,"h":1067}]</script>
+    <script type="application/json" id="shop-shipping">{"flat":3000,"freeOver":100000}</script>
+  
+  </main>
+  <div class="marquee theme-dark" aria-hidden="true">
+        <div class="hs-track">
+          <span class="hs-track__item">KITCHEN TOWEL</span><span class="hs-track__item">JUMBO ROLL</span><span class="hs-track__item">TOILET TISSUE</span><span class="hs-track__item">FACIAL TISSUE</span><span class="hs-track__item">NAPKIN</span><span class="hs-track__item">HAND TOWEL</span><span class="hs-track__item">BAKING PAPER</span><span class="hs-track__item">PRIVATE LABEL</span>
+        </div>
+      </div>
+  <footer class="footer theme-dark padding-global">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <p class="footer__col-title">(주)이루모스</p>
+          <p class="u-dim" style="max-width:34ch">(주)이루모스는 키친타월, 점보롤티슈, 두루마리티슈를 공급하는 위생용지 기업입니다. 가정용 소량부터 업소용 대량 납품, 로고 인쇄 주문제작까지 상담해 드립니다.</p>
+          <p class="u-dim" style="margin-top:var(--space-sm)">대표자 김상우<br>충청남도 계룡시 두마면 입암길 76-18 (입암리 653)<br>TEL 063-243-3240 · FAX 063-243-7730</p>
+          <p style="margin-top:var(--space-sm)"><a href="mailto:edward1105@naver.com" data-underline-link>edward1105@naver.com</a></p>
+        </div>
+        <div>
+          <p class="footer__col-title">제품소개</p>
+          <div class="footer__links">
+            <a href="/services/kitchen-towel/">키친타월</a><a href="/services/jumbo-roll/">점보롤티슈</a><a href="/services/toilet-tissue/">두루마리티슈</a><a href="/services/facial-napkin/">미용티슈 · 냅킨</a><a href="/services/hand-towel/">핸드타월</a><a href="/services/baking-paper/">주방용 종이호일</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer__col-title">바로가기</p>
+          <div class="footer__links">
+            <a href="/shop/">온라인 주문</a>
+            <a href="/shop/cart/">장바구니 · 주문서</a>
+            <a href="/portfolio/">사용처 안내</a>
+            <a href="/faq/">고객센터</a>
+            <a href="/blog/">위생용지 저널</a>
+            <a href="/#contact">견적 요청</a>
+            
+          </div>
+        </div>
+      </div>
+      <p class="footer__wordmark" aria-hidden="true">ILUMOS</p>
+      <div class="footer__bottom">
+        <span>© <span data-year>2026</span> (주)이루모스 — 충청남도 계룡시</span>
+        <span class="footer__links" style="flex-direction:row;gap:var(--space-sm)">
+          <a href="/utility-pages/privacy-notice/">개인정보 처리방침</a>
+          <a href="/utility-pages/terms-conditions/">이용약관</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+  <script src="/assets/js/vendor/lenis.min.js" defer></script>
+  <script src="/assets/js/vendor/gsap.min.js" defer></script>
+  <script src="/assets/js/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="/assets/js/vendor/SplitText.min.js" defer></script>
+  <script src="/assets/js/vendor/ScrambleTextPlugin.min.js" defer></script>
+  <script src="/assets/js/vendor/Flip.min.js" defer></script>
+  <script src="/assets/js/vendor/Observer.min.js" defer></script>
+  <script src="/assets/js/vendor/InertiaPlugin.min.js" defer></script>
+  <script src="/assets/js/vendor/CustomEase.min.js" defer></script>
+  <script type="module" src="/assets/js/main.js"></script>
+</body>
+</html>

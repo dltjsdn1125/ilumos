@@ -2,122 +2,232 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.ilumos.co.kr/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/portfolio/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/portfolio/restaurant-kitchen/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/portfolio/care-facility/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/portfolio/office-building/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/portfolio/cafe-lodging/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/kitchen-towel/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/jumbo-roll/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/toilet-tissue/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/facial-napkin/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/hand-towel/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/baking-paper/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/private-label/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/services/bulk-supply/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.ilumos.co.kr/shop/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/cart/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/kitchen-towel-home-150/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/kitchen-towel-pro-300/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/kitchen-towel-3ply/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/kitchen-towel-box-12/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/jumbo-roll-300/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/jumbo-roll-coreless/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/jumbo-roll-eco/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/jumbo-roll-premium/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/toilet-tissue-home-30/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/toilet-tissue-pro-50/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/toilet-tissue-3ply/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/toilet-tissue-eco/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/facial-tissue-200/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/napkin-table-6fold/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/napkin-printed/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/napkin-kraft/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/hand-towel-multifold/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/hand-towel-dispenser/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/baking-paper-roll/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.ilumos.co.kr/shop/baking-paper-sheet/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.ilumos.co.kr/faq/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/blog/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/blog/jumbo-vs-roll/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/blog/kitchen-towel-absorption/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/blog/ply-difference/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/blog/dispenser-placement/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/blog/pulp-and-recycled/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/blog/storage-humidity/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/utility-pages/terms-conditions/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.ilumos.co.kr/utility-pages/privacy-notice/</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <priority>0.3</priority>
   </url>
 </urlset>

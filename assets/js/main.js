@@ -8,6 +8,7 @@
 import { initHeroGL } from './hero-gl.js'
 import { initCursor, initHeader, initMenu, initAccordion, initMarquee, markCurrentNav, initContactForm } from './ui.js'
 import { initMotion } from './motion.js'
+import { initShop } from './shop.js'
 
 function boot() {
   document.documentElement.classList.add('js')
@@ -22,6 +23,9 @@ function boot() {
   initCursor()
   markCurrentNav()
   initContactForm()
+  /* 헤더 배지는 모든 페이지에서 필요하므로 shop 라우트가 아니어도 부릅니다.
+     나머지(분류·장바구니 화면)는 각자 자기 훅이 없으면 즉시 빠져나갑니다. */
+  initShop()
 
   initMotion()
 

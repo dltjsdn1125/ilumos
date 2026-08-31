@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/sections.css">
   <link rel="stylesheet" href="/assets/css/pages.css">
+  <link rel="stylesheet" href="/assets/css/shop.css">
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.ilumos.co.kr/#organization","name":"(주)이루모스","url":"https://www.ilumos.co.kr/","email":"edward1105@naver.com","telephone":"063-243-3240","faxNumber":"063-243-7730","founder":{"@type":"Person","name":"김상우"},"description":"(주)이루모스는 키친타월, 점보롤티슈, 두루마리티슈를 공급하는 위생용지 기업입니다. 가정용 소량부터 업소용 대량 납품, 로고 인쇄 주문제작까지 상담해 드립니다.","address":{"@type":"PostalAddress","streetAddress":"두마면 입암길 76-18 (입암리 653)","addressLocality":"계룡시","addressRegion":"충청남도","addressCountry":"KR"}},{"@type":"WebSite","@id":"https://www.ilumos.co.kr/#website","url":"https://www.ilumos.co.kr/","name":"(주)이루모스","inLanguage":"ko","publisher":{"@id":"https://www.ilumos.co.kr/#organization"}},{"@type":"WebPage","@id":"https://www.ilumos.co.kr/portfolio/restaurant-kitchen/#webpage","url":"https://www.ilumos.co.kr/portfolio/restaurant-kitchen/","name":"외식업장 주방 — 키친타월 · 핸드타월","description":"기름과 물을 동시에 다루는 주방에서 어떤 규격을 어디에 두면 되는지 정리한 구성안.","isPartOf":{"@id":"https://www.ilumos.co.kr/#website"},"inLanguage":"ko"},{"@type":"Article","headline":"외식업장 주방","alternativeHeadline":"RESTAURANT KITCHEN","articleSection":"키친타월 · 핸드타월","about":"외식 · 급식","description":"기름과 물을 동시에 다루는 주방에서 어떤 규격을 어디에 두면 되는지 정리한 구성안.","inLanguage":"ko","author":{"@id":"https://www.ilumos.co.kr/#organization"},"publisher":{"@id":"https://www.ilumos.co.kr/#organization"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://www.ilumos.co.kr/portfolio/restaurant-kitchen/#webpage"}}]}</script>
 </head>
 <body>
@@ -58,9 +59,14 @@
       <span>ILUMOS</span><span class="brand__dot" aria-hidden="true"></span>
     </a>
         <nav class="nav-desktop" aria-label="주요">
-          <a class="nav-desktop__link" href="/#about" data-underline-link>회사소개</a><a class="nav-desktop__link" href="/#services" data-underline-link>제품소개</a><a class="nav-desktop__link" href="/portfolio/" data-underline-link>사용처 안내</a><a class="nav-desktop__link" href="/#process" data-underline-link>주문 · 배송</a><a class="nav-desktop__link" href="/faq/" data-underline-link>고객센터</a><a class="nav-desktop__link" href="/blog/" data-underline-link>위생용지 저널</a>
+          <a class="nav-desktop__link" href="/#about" data-underline-link>회사소개</a><a class="nav-desktop__link" href="/#services" data-underline-link>제품소개</a><a class="nav-desktop__link" href="/shop/" data-underline-link>온라인 주문</a><a class="nav-desktop__link" href="/portfolio/" data-underline-link>사용처 안내</a><a class="nav-desktop__link" href="/#process" data-underline-link>주문 · 배송</a><a class="nav-desktop__link" href="/faq/" data-underline-link>고객센터</a><a class="nav-desktop__link" href="/blog/" data-underline-link>위생용지 저널</a>
         </nav>
         <div class="header__actions">
+          <a class="cart-link" href="/shop/cart/" data-cart-link data-cursor="CART">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.4 5.5h9.2l-.75 8a1 1 0 0 1-1 .9H5.15a1 1 0 0 1-1-.9zM5.9 5.5V4a2.1 2.1 0 0 1 4.2 0v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="cart-link__label" lang="en">CART</span>
+            <span class="cart-link__count" data-cart-count hidden>0</span>
+          </a>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-overlay">
             <span class="menu-toggle__bars" aria-hidden="true"><span></span><span></span><span></span></span>
             <span>MENU</span>
@@ -89,20 +95,24 @@
                 <span class="menu-overlay__num">02</span><span>제품소개</span>
               </a>
             </li><li class="menu-overlay__item">
+              <a class="menu-overlay__link" href="/shop/" data-cursor="GO">
+                <span class="menu-overlay__num">03</span><span>온라인 주문</span>
+              </a>
+            </li><li class="menu-overlay__item">
               <a class="menu-overlay__link" href="/portfolio/" data-cursor="GO">
-                <span class="menu-overlay__num">03</span><span>사용처 안내</span>
+                <span class="menu-overlay__num">04</span><span>사용처 안내</span>
               </a>
             </li><li class="menu-overlay__item">
               <a class="menu-overlay__link" href="/#process" data-cursor="GO">
-                <span class="menu-overlay__num">04</span><span>주문 · 배송</span>
+                <span class="menu-overlay__num">05</span><span>주문 · 배송</span>
               </a>
             </li><li class="menu-overlay__item">
               <a class="menu-overlay__link" href="/faq/" data-cursor="GO">
-                <span class="menu-overlay__num">05</span><span>고객센터</span>
+                <span class="menu-overlay__num">06</span><span>고객센터</span>
               </a>
             </li><li class="menu-overlay__item">
               <a class="menu-overlay__link" href="/blog/" data-cursor="GO">
-                <span class="menu-overlay__num">06</span><span>위생용지 저널</span>
+                <span class="menu-overlay__num">07</span><span>위생용지 저널</span>
               </a>
             </li>
         </ul>
@@ -362,6 +372,8 @@ A QUOTE</h2>
         <div>
           <p class="footer__col-title">바로가기</p>
           <div class="footer__links">
+            <a href="/shop/">온라인 주문</a>
+            <a href="/shop/cart/">장바구니 · 주문서</a>
             <a href="/portfolio/">사용처 안내</a>
             <a href="/faq/">고객센터</a>
             <a href="/blog/">위생용지 저널</a>
