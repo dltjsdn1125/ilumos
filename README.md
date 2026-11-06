@@ -15,7 +15,7 @@
 |---|---|
 | 뷰포트 메타 없음 → 모바일에서 확대해야 보임 | 375 / 480 / 768 / 991px 반응형, 가로 오버플로 0 |
 | meta description 없음 | 전 페이지 title·description·canonical·OG·JSON-LD |
-| alt 없는 이미지 6개 | `<img>` 72개 **전부** alt + width/height |
+| alt 없는 이미지 6개 | `<img>` 181개 **전부** alt + width/height |
 | jQuery 1.8.3 (구버전 취약점) | jQuery 미사용. GSAP·Lenis만 로컬 번들 |
 | 본문이 전부 이미지 → 검색 노출 불가 | 본문 전체가 실제 텍스트 |
 
@@ -44,6 +44,7 @@ npm run serve     # http://localhost:4173
 | `npm run build` | `src/`의 데이터·템플릿으로 모든 라우트를 정적 HTML로 렌더 |
 | `node scripts/check.mjs` | 링크·헤딩·alt·SEO·aria 검증 (실패 시 exit 1) |
 | `node scripts/audit-css.mjs` | 마크업에 한 번도 나오지 않는 CSS 클래스 보고 (리팩터 잔여물 탐지) |
+| `npm run export` | 카탈로그 20종을 외부 쇼핑몰 등록용으로 내보냄 → `export/` (CSV + JSON + 이미지). 카페24 등 호스팅형 커머스에 얹을 때 사용 |
 | `npm run serve` | 무의존 정적 서버 |
 
 이미지를 다시 뽑으려면 `FORCE=1 npm run images`. `PIXABAY_KEY` / `PEXELS_KEY` 환경변수를 사용합니다.
@@ -80,16 +81,19 @@ npm run serve     # http://localhost:4173
 │     ├─ layout.mjs         ← 문서 셸: head/SEO/JSON-LD, 헤더, 오버레이 메뉴, 커서, 푸터
 │     ├─ components.mjs     ← 아톰·몰리큘 (버튼, 이어브로우, 미디어, 아코디언, 카드, 캐러셀…)
 │     └─ pages.mjs          ← 페이지 본문 + 캐러셀/갤러리 이미지 목록
-├─ scripts/                 ← build · vendor · fetch-images · check · audit-css · serve
+├─ scripts/                 ← build · vendor · fetch-images · check · audit-css · serve · export-products
 ├─ assets/
-│  ├─ css/  tokens · base · components · sections · pages · lenis
-│  ├─ js/   main · motion · ui · hero-gl · vendor/
+│  ├─ css/  tokens · base · components · sections · pages · shop · lenis
+│  ├─ js/   main · motion · ui · shop · hero-gl · vendor/
 │  └─ images/ (44 webp + manifest.json + CREDITS.md)
-└─ (생성물) index.html · portfolio/ · services/ · faq/ · blog/ · utility-pages/ · 404.html
+├─ docs/                    ← 사이트가 아닌 문서 (검증 스크립트 대상 밖)
+│  ├─ shop-setup-guide.html            고객용 「쇼핑몰 개설 3단계」 (captures/ 에 캡처를 넣으면 자동 삽입)
+│  └─ cafe24-integration-guidebook.html 제작사 내부용 카페24 연동 가이드북
+└─ (생성물) index.html · portfolio/ · services/ · faq/ · blog/ · shop/ · utility-pages/ · 404.html
 ```
 
 **공통 마크업은 페이지에 직접 쓰지 않습니다.** 헤더·푸터·버튼·카드 등은 전부 컴포넌트가 소유하며
-빌드가 조합합니다. 내비게이션 한 줄을 고치면 25개 페이지에 동시 반영됩니다.
+빌드가 조합합니다. 내비게이션 한 줄을 고치면 47개 페이지에 동시 반영됩니다.
 
 ---
 
@@ -103,7 +107,7 @@ npm run serve     # http://localhost:4173
 | `/faq/` | 고객센터. 8문항 아코디언 (최소 수량 · 샘플 · 견적 · 배송 · 인쇄 · 품목 선택 · 원지 · 정기 배송) |
 | `/blog/` + 글 6편 | 위생용지 저널. 목록 + 개별 상세, `BlogPosting` JSON-LD |
 | `/shop/` | **온라인 주문** — 제품 20종 카탈로그. 분류 6 + 정렬 4, `ItemList` JSON-LD |
-| `/shop/` 상세 20 | 제품별 규격표 · 수량 · 담기. `Product` + `Offer` JSON-LD |
+| `/shop/` 상세 20 | 제품별 규격표 · 수량 · 담기. `Product` + `Offer` JSON-LD. 품목에 `externalUrl`(카페24 등 외부 상품 주소)을 넣으면 담기가 **구매하기** 외부 링크로 바뀌고 `offers.url`도 그쪽을 가리킴 — `docs/cafe24-integration-guidebook.html` |
 | `/shop/cart/` | 장바구니 · 주문서 (⚠ 결제 없음 — MISSING.md > D7) |
 | `/utility-pages/` 2 | 이용약관 · 개인정보 처리방침 (⚠ 법률 검토 필요) |
 | `/404.html` | |
@@ -293,14 +297,14 @@ body      →  #06060c (불투명 바닥)
 - 아코디언: `aria-expanded` / `aria-controls` / `role="region"` 연결 (검증 스크립트가 id 대응 확인)
 - **페이지당 `<h1>` 정확히 1개.** 홈은 원본을 그대로 따라 h1이 히어로가 아니라 **FAQ 블록**에 있습니다
 - 모든 텍스트 **16px 이상**
-- 모든 `<img>`에 `alt` + `width`/`height` (레이아웃 시프트 방지) — 72개 전부 검증
+- 모든 `<img>`에 `alt` + `width`/`height` (레이아웃 시프트 방지) — 181개 전부 검증
 - 모든 타이틀은 영문 표기 + 한글 보조 라인(`.t-ko`). 서브페이지 h1은 `aria-labelledby`로
   한글·영문을 함께 읽습니다 — **SplitText가 `aria-label`을 덮어쓰기 때문에 `label`로는 안 됩니다**
 - 페이지별 title/description/canonical/OG/Twitter, JSON-LD `Organization` + `WebSite` + `WebPage`,
   제품 상세는 `Product`, 사용처 안내는 `Article`, FAQ는 `FAQPage`, 저널 글은 `BlogPosting`
 - `Organization` 에는 원본에서 확인된 값만 넣습니다 — 전화·팩스·이메일·주소·대표자.
   **설립연도(`foundingDate`)와 SNS(`sameAs`)는 원본에 없어 필드 자체를 뺐습니다.**
-- `sitemap.xml` (24 URL) · `robots.txt` · `site.webmanifest`
+- `sitemap.xml` (46 URL) · `robots.txt` · `site.webmanifest`
 
 ---
 
@@ -311,11 +315,11 @@ $ npm run images
 44 slots -> assets/images (원본 11 · 스톡 33 · 플레이스홀더 0)
 
 $ npm run build
-built 25 pages + sitemap.xml (24 urls) + robots.txt + site.webmanifest
+built 47 pages + sitemap.xml (46 urls) + robots.txt + site.webmanifest
 images in manifest: 44
 
 $ node scripts/check.mjs
-pages: 25  ·  internal refs: 1455  ·  images: 72
+pages: 47  ·  internal refs: 3170  ·  images: 181
 notes (expected, not failures):
   index.html: /assets/video/about.webm not present (poster fallback — documented)
   index.html: /assets/video/about.mp4 not present (poster fallback — documented)
@@ -324,9 +328,12 @@ notes (expected, not failures):
 PASS — links resolve, headings/alt/SEO/aria all present
 
 $ node scripts/audit-css.mjs
-declared classes: 238  ·  emitted in markup/js: 278
+declared classes: 312  ·  emitted in markup/js: 366
 no dead component classes
 ```
+
+`check.mjs` · `audit-css.mjs` 는 `docs/` 와 `export/` 를 건너뜁니다 — 매뉴얼과 등록 자료는
+사이트 라우트가 아니라 canonical·JSON-LD 검사를 받을 이유가 없습니다.
 
 - 이미지 44슬롯 전부 채움, **플레이스홀더 0장**. 제품 자리는 이루모스 자사 사진 우선
 - 회사 식별 정보가 전 페이지에 원본 값으로 반영됨 (전화·팩스·이메일·대표자·소재지)

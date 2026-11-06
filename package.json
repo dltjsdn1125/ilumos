@@ -9,7 +9,8 @@
     "vendor": "node scripts/vendor.mjs",
     "images": "node scripts/fetch-images.mjs",
     "setup": "npm run vendor && npm run images && npm run build",
-    "serve": "node scripts/serve.mjs"
+    "serve": "node scripts/serve.mjs",
+    "export": "node scripts/export-products.mjs"
   },
   "devDependencies": {
     "gsap": "^3.13.0",

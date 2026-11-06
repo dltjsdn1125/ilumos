@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="정적 사이트에 카페24 스토어를 연결하는 제작사 내부 작업 문서 — 구조, MCP·Admin API 의 역할, 코드 변경 지점, 가격 이원화 대응, 오픈 체크리스트.">
+<title>카페24 연동 가이드북</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+
+  /* 고객용 매뉴얼(shop-setup-guide.html)과 같은 시스템입니다 — 한 벌로 씁니다.
+     글자는 검정, 바탕은 흰색, 파랑(IBM Carbon Blue 70/80)은 버튼에만. */
+  :root {
+    --ink: #000000;
+    --paper: #ffffff;
+    --rule: #c4cad2;
+    --rule-soft: #e6e9ee;
+    --panel: #f2f5f8;
+    --blue: #0043ce;
+    --blue-dark: #002d9c;
+
+    --sans: 'IBM Plex Sans KR', 'IBM Plex Sans', system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', 'IBM Plex Sans KR', ui-monospace, monospace;
+
+    --measure: 68ch;
+  }
+
+  * { box-sizing: border-box; }
+
+  /* 아래에서 .capture img 등에 display 를 주기 때문에, hidden 이 확실히
+     이기도록 먼저 못박아 둡니다. 이게 없으면 아직 넣지 않은 캡처가
+     거대한 빈 상자로 그려집니다. */
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.75;
+    word-break: keep-all;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 28px 120px; }
+
+  .cover { padding: 88px 0 8px; }
+
+  .kicker {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin: 0 0 20px;
+  }
+
+  h1 {
+    font-size: clamp(38px, 6vw, 60px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+    text-wrap: balance;
+  }
+
+  .cover p { max-width: var(--measure); margin: 0 0 14px; font-size: 17px; }
+
+  .toc { max-width: none; margin: 40px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); }
+  .toc li { border-bottom: 1px solid var(--rule-soft); }
+  .toc a {
+    display: grid;
+    grid-template-columns: 3.2em 1fr;
+    gap: 16px;
+    align-items: baseline;
+    padding: 14px 4px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .toc a:hover .toc__t { text-decoration: underline; text-underline-offset: 4px; }
+  .toc__n { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .toc__t { font-weight: 600; }
+
+  section { padding-top: 76px; }
+
+  .step-head { border-top: 3px solid var(--ink); padding-top: 22px; margin-bottom: 30px; }
+  .step-head__n {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  h2 { font-size: clamp(28px, 4vw, 38px); font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; margin: 0 0 16px; text-wrap: balance; }
+  h3 { font-size: 21px; font-weight: 600; line-height: 1.35; margin: 52px 0 14px; }
+  h4 { font-size: 16px; font-weight: 600; margin: 30px 0 10px; }
+
+  p, ul, ol { max-width: var(--measure); }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 18px; padding-left: 1.35em; }
+  li { margin-bottom: 8px; }
+
+  strong { font-weight: 600; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    background: var(--panel);
+    padding: 0.12em 0.4em;
+    border-radius: 2px;
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    background: var(--panel);
+    border: 1px solid var(--rule-soft);
+    border-left: 3px solid var(--ink);
+    border-radius: 2px;
+    padding: 16px 18px;
+    margin: 18px 0;
+    overflow-x: auto;
+    max-width: none;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  .file {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    display: inline-block;
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    padding: 2px 9px;
+    margin-bottom: 10px;
+  }
+
+  /* ── 구조도 ───────────────────────────────────────────────────────── */
+
+  figure { margin: 26px 0 30px; max-width: none; }
+
+  .arch {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 24px 20px;
+    display: grid;
+    gap: 0;
+  }
+
+  .arch__lane {
+    display: grid;
+    grid-template-columns: 8.5em 1fr;
+    gap: 18px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px dashed var(--rule-soft);
+  }
+  .arch__lane:last-child { border-bottom: 0; }
+
+  .arch__who {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .arch__flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .node {
+    border: 1.5px solid var(--ink);
+    border-radius: 2px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .node--dash { border-style: dashed; font-weight: 400; }
+  .arrow { font-family: var(--mono); font-size: 14px; }
+
+  figcaption {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 12px;
+    padding-left: 12px;
+    border-left: 2px solid var(--rule);
+    max-width: var(--measure);
+  }
+  figcaption b { font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.03em; display: block; margin-bottom: 4px; }
+
+  /* ── 알림 ─────────────────────────────────────────────────────────── */
+
+  .note {
+    border: 1px solid var(--ink);
+    border-left-width: 5px;
+    border-radius: 2px;
+    padding: 18px 20px;
+    margin: 24px 0;
+    max-width: none;
+  }
+  .note > *:first-child { margin-top: 0; }
+  .note > *:last-child { margin-bottom: 0; }
+  .note__t { font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: 0.03em; display: block; margin-bottom: 8px; }
+  .note--soft { border: 1px solid var(--rule); border-left: 5px solid var(--rule); background: var(--panel); }
+
+  /* ── 절차 ─────────────────────────────────────────────────────────── */
+
+  .steps { list-style: none; padding: 0; margin: 0 0 24px; max-width: none; counter-reset: s; }
+  .steps > li {
+    counter-increment: s;
+    display: grid;
+    grid-template-columns: 2.4em 1fr;
+    column-gap: 18px;
+    row-gap: 10px;
+    padding: 20px 0;
+    margin: 0;
+    border-bottom: 1px solid var(--rule-soft);
+    max-width: none;
+  }
+
+  /* 그리드는 자식을 순서대로 칸에 채웁니다. li 안에 문단이 둘 이상이면 두 번째
+     문단이 번호 칸(2.4em)으로 떨어져 한 글자씩 줄바꿈됩니다. 번호를 1행 1열에
+     못박고 실제 자식은 전부 2열로 보냅니다. */
+  .steps > li::before { grid-column: 1; grid-row: 1; }
+  .steps > li > * { grid-column: 2; }
+  .steps > li::before {
+    content: counter(s);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    width: 2.1em;
+    height: 2.1em;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  /* 자식이 하나뿐이라 그리드가 잘못 배치할 자리가 없습니다. 문단 사이 간격은
+     여기서 줍니다. min-width:0 은 그리드 칸이 내용에 밀려 넓어지는 것을 막습니다. */
+  .steps__body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .steps__body > *:first-child { margin-top: 0; }
+  .steps__body > *:last-child { margin-bottom: 0; }
+  .steps__body > p { margin-bottom: 0; }
+
+  .steps > li > *:first-child { margin-top: 0; }
+  .steps > li > *:last-child { margin-bottom: 0; }
+
+  /* ── 체크리스트 ───────────────────────────────────────────────────── */
+
+  .check { list-style: none; padding: 0; margin: 20px 0 0; max-width: none; border-top: 1px solid var(--rule); }
+  /* 그리드를 쓰지 않습니다. 그리드 칸에서는 strong·code 같은 인라인 요소가
+     각각 별도의 격자 항목이 되어 두 번째부터 체크박스 칸으로 떨어지고 글자가
+     겹칩니다. 체크박스를 절대 위치로 빼면 본문은 그냥 흐릅니다. */
+  .check li {
+    position: relative;
+    padding: 11px 2px 11px 34px;
+    margin: 0;
+    border-bottom: 1px solid var(--rule-soft);
+    font-size: 15px;
+  }
+  .check li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 17px;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--ink);
+    border-radius: 2px;
+  }
+
+  /* ── 표 ───────────────────────────────────────────────────────────── */
+
+  .table-scroll { overflow-x: auto; margin: 22px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 520px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  thead th { border-bottom: 1.5px solid var(--ink); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; white-space: nowrap; }
+  td code { white-space: nowrap; }
+
+  /* ── 버튼 ─────────────────────────────────────────────────────────── */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--blue);
+    color: #ffffff;
+    border: 0;
+    border-radius: 2px;
+    padding: 11px 22px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  .btn:hover { background: var(--blue-dark); }
+  .btn:focus-visible { outline: 3px solid var(--blue-dark); outline-offset: 2px; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+
+  a { color: var(--ink); }
+  a:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  footer { margin-top: 90px; padding-top: 24px; border-top: 3px solid var(--ink); font-size: 13px; }
+  .stamp { margin-top: 14px; font-family: var(--mono); font-size: 12px; }
+  footer p { max-width: var(--measure); }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 0 18px 80px; }
+    .cover { padding-top: 56px; }
+    .arch__lane { grid-template-columns: 1fr; gap: 8px; }
+    .steps > li { grid-template-columns: 1.9em 1fr; gap: 12px; }
+  }
+
+  @media print {
+    .wrap { max-width: none; padding: 0; }
+    .step-head, h3 { page-break-after: avoid; }
+    figure, .note, .check, table, pre { page-break-inside: avoid; }
+    .btn-row, .toc { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="cover">
+    <p class="kicker">연동 가이드북 · 제작사 내부용</p>
+    <h1>카페24 연동 가이드북</h1>
+    <p>정적 사이트에 카페24 스토어를 붙이는 작업 문서입니다. 무엇을 어디에 두는지, 코드의 어느 지점을 고치는지, 그리고 <strong>붙이면 안 되는 것이 무엇인지</strong>를 적었습니다.</p>
+    <p>고객에게 드리는 <strong>「쇼핑몰 개설 3단계」</strong>가 1~3단계를 다루고, 이 문서가 그 다음 4단계를 다룹니다. 두 문서는 한 벌입니다.</p>
+
+    <ol class="toc">
+      <li><a href="#model"><span class="toc__n">01</span><span class="toc__t">전체 구조 — 무엇이 어디서 도는가</span></a></li>
+      <li><a href="#mcp"><span class="toc__n">02</span><span class="toc__t">MCP 로 할 수 있는 일과 없는 일</span></a></li>
+      <li><a href="#order"><span class="toc__n">03</span><span class="toc__t">작업 순서</span></a></li>
+      <li><a href="#code"><span class="toc__n">04</span><span class="toc__t">코드 변경 지점 세 곳</span></a></li>
+      <li><a href="#api"><span class="toc__n">05</span><span class="toc__t">상품 등록 자동화 (Admin API)</span></a></li>
+      <li><a href="#truth"><span class="toc__n">06</span><span class="toc__t">가격 이원화 — 이 연동의 진짜 위험</span></a></li>
+      <li><a href="#launch"><span class="toc__n">07</span><span class="toc__t">오픈 체크리스트</span></a></li>
+      <li><a href="#faq"><span class="toc__n">08</span><span class="toc__t">고객이 자주 묻는 것</span></a></li>
+    </ol>
+  </header>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="model">
+    <div class="step-head">
+      <span class="step-head__n">01</span>
+      <h2>전체 구조</h2>
+    </div>
+
+    <p>이 사이트는 <code>scripts/build.mjs</code> 가 전 라우트를 HTML 로 뽑는 <strong>완전한 정적 사이트</strong>입니다. 런타임 서버가 없습니다. 그래서 결제는 이 사이트에서 일어나지 않고, 일어나서도 안 됩니다.</p>
+
+    <figure>
+      <div class="arch">
+        <div class="arch__lane">
+          <span class="arch__who">이 사이트<br>정적 HTML</span>
+          <div class="arch__flow">
+            <span class="node">/shop/ 카탈로그</span>
+            <span class="arrow">→</span>
+            <span class="node">/shop/&lt;slug&gt;/ 상세</span>
+            <span class="arrow">→</span>
+            <span class="node">구매 버튼</span>
+          </div>
+        </div>
+        <div class="arch__lane">
+          <span class="arch__who">카페24<br>호스팅 커머스</span>
+          <div class="arch__flow">
+            <span class="node">상품 페이지</span>
+            <span class="arrow">→</span>
+            <span class="node">장바구니</span>
+            <span class="arrow">→</span>
+            <span class="node">주문서 · 로그인</span>
+            <span class="arrow">→</span>
+            <span class="node">체크아웃</span>
+          </div>
+        </div>
+        <div class="arch__lane">
+          <span class="arch__who">PG<br>결제대행</span>
+          <div class="arch__flow">
+            <span class="node">카드 · 계좌이체</span>
+            <span class="arrow">→</span>
+            <span class="node">승인</span>
+            <span class="arrow">→</span>
+            <span class="node">정산</span>
+          </div>
+        </div>
+        <div class="arch__lane">
+          <span class="arch__who">개발 도구<br>런타임 아님</span>
+          <div class="arch__flow">
+            <span class="node node--dash">카페24 MCP</span>
+            <span class="node node--dash">Admin API</span>
+            <span class="arrow">→</span>
+            <span class="node node--dash">상품 · 주문 관리</span>
+          </div>
+        </div>
+      </div>
+      <figcaption><b>구조도</b>위 세 줄이 방문자가 실제로 지나가는 경로입니다. 맨 아래 줄은 <strong>우리가 개발할 때만</strong> 쓰는 도구이고 방문자의 결제 경로에 들어가지 않습니다.</figcaption>
+    </figure>
+
+    <h3>왜 여기에 직접 결제를 붙이지 않는가</h3>
+
+    <p>서버 없이 결제를 붙이면 두 가지가 반드시 깨집니다.</p>
+
+    <ul>
+      <li><strong>금액을 신뢰할 수 없습니다.</strong> 브라우저에만 있는 값은 브라우저에서 고칠 수 있습니다. 결제 직전에 금액을 서버가 다시 계산해 검증해야 하는데, 검증할 서버가 없습니다.</li>
+      <li><strong>키가 공개됩니다.</strong> PG 시크릿 키를 정적 페이지에 넣으면 그 순간 전 세계에 공개됩니다.</li>
+    </ul>
+
+    <p>그래서 결제는 카페24 체크아웃에 맡깁니다. 이 사이트는 상품을 보여 주고 넘겨주는 역할까지만 합니다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="mcp">
+    <div class="step-head">
+      <span class="step-head__n">02</span>
+      <h2>MCP 로 할 수 있는 일과 없는 일</h2>
+    </div>
+
+    <p>카페24는 MCP 서버를 제공합니다. 다만 <strong>MCP 는 결제 모듈이 아닙니다.</strong> 이 구분이 이 문서에서 가장 자주 오해받는 지점이라 표로 정리합니다.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>구분</th><th>MCP · Admin API</th><th>카페24 체크아웃</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>누가 쓰나</td><td>개발자 · AI 에이전트</td><td>쇼핑객</td></tr>
+          <tr><td>언제 도나</td><td>개발 · 운영 중</td><td>방문자가 결제할 때</td></tr>
+          <tr><td>하는 일</td><td>상품 등록, 재고 조회, 주문 조회</td><td>결제 승인, 정산</td></tr>
+          <tr><td>카드 정보</td><td>다루지 않음</td><td>다룸</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span class="note__t">한 문장으로</span>
+      <p>MCP 는 <strong>내가 스토어를 조작하는 통로</strong>지, 방문자 브라우저의 결제 모듈이 아닙니다. "MCP 로 결제 연동"은 성립하지 않는 문장입니다.</p>
+    </div>
+
+    <p>MCP 로 실제 쓸모가 있는 자리는 이렇습니다.</p>
+    <ul>
+      <li>상품 20종을 스토어에 밀어 넣기 — 수작업 등록 대신</li>
+      <li>등록 후 상품번호를 회수해 이 사이트의 링크로 되먹이기</li>
+      <li>가격이 바뀌었을 때 양쪽 값이 같은지 대조</li>
+    </ul>
+
+    <div class="btn-row">
+      <a class="btn" href="https://developers.cafe24.com/mcpserver/front/mcpserver" target="_blank" rel="noopener noreferrer">MCP 서버 문서</a>
+      <a class="btn" href="https://developers.cafe24.com/docs/api/admin/" target="_blank" rel="noopener noreferrer">Admin API 문서</a>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="order">
+    <div class="step-head">
+      <span class="step-head__n">03</span>
+      <h2>작업 순서</h2>
+    </div>
+
+    <p>고객이 「쇼핑몰 개설 3단계」를 끝낸 뒤부터가 우리 몫입니다. 그 전에는 손댈 수 없습니다 — 상품번호가 없으면 링크를 만들 수 없기 때문입니다.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="steps__body">
+          <p><strong>고객에게서 받을 것을 먼저 확보합니다.</strong></p>
+          <ul>
+            <li>쇼핑몰 아이디 (= 기본 도메인)</li>
+            <li>관리자 접근 권한 또는 부운영자 계정</li>
+            <li>확정 판매가 — <strong>이게 없으면 시작하지 마세요</strong></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="steps__body">
+          <p><strong>확정가를 <code>src/data/site.mjs</code> 에 반영합니다.</strong></p>
+          <p>현재 <code>products[].price</code> 는 시안용 예시값입니다. 여기를 고쳐야 사이트·CSV·API 등록이 한꺼번에 맞습니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="steps__body">
+          <p><strong>등록 자료를 다시 뽑습니다.</strong></p>
+          <pre><code>npm run export</code></pre>
+          <p><code>export/products.csv</code>, <code>export/products.json</code>, <code>export/images/</code> 가 새로 생성됩니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="steps__body">
+          <p><strong>상품을 등록합니다.</strong></p>
+          <p>수량이 20종이면 일괄등록 CSV 가 빠르고, 반복 작업이 예상되면 Admin API 를 씁니다. <strong>05장</strong> 참고.</p>
+        </div>
+      </li>
+      <li>
+        <div class="steps__body">
+          <p><strong>등록된 상품번호를 회수합니다.</strong></p>
+          <p>카페24 상품 목록에서 각 상품의 상품번호를 받아 <code>sku</code> 와 짝지어 둡니다. 이게 다음 단계의 입력입니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="steps__body">
+          <p><strong>사이트에 링크를 심고 다시 빌드합니다.</strong></p>
+          <p><strong>04장</strong>의 세 곳을 고치고 <code>npm run build</code>.</p>
+        </div>
+      </li>
+      <li>
+        <div class="steps__body">
+          <p><strong>검증합니다.</strong></p>
+          <pre><code>npm run build
+node scripts/check.mjs
+node scripts/audit-css.mjs</code></pre>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="code">
+    <div class="step-head">
+      <span class="step-head__n">04</span>
+      <h2>코드 변경 지점 세 곳</h2>
+    </div>
+
+    <p>연결은 코드 세 군데에서 끝납니다. 그 이상 손대야 한다면 설계를 다시 보는 편이 낫습니다.</p>
+
+    <h3>4-1. 상품마다 외부 주소를 붙인다</h3>
+
+    <span class="file">src/data/site.mjs</span>
+    <pre><code>{
+  slug: 'jumbo-roll-300',
+  sku: 'ILM-JR-300',
+  name: '업소용 점보롤 2겹 300m',
+  price: 42000,
+  // 카페24 등록 후 회수한 상품 주소. 없으면 기존 장바구니 흐름을 씁니다.
+  externalUrl: 'https://&lt;쇼핑몰ID&gt;.cafe24.com/product/detail.html?product_no=27',
+}</code></pre>
+
+    <div class="note note--soft">
+      <span class="note__t">확인 필요</span>
+      <p>카페24 상품 상세 주소의 형태는 스킨과 설정에 따라 다를 수 있습니다. <strong>실제 등록된 상품 하나를 열어 주소창을 보고</strong> 패턴을 확정한 뒤 일괄 생성하세요. 추측으로 20개를 만들면 20개가 전부 틀립니다.</p>
+    </div>
+
+    <h3>4-2. 담기 버튼을 구매 링크로 바꾼다</h3>
+
+    <span class="file">src/templates/components.mjs &gt; productCard()</span>
+    <pre><code>${product.externalUrl
+  ? `&lt;a class="product-card__add" href="${esc(product.externalUrl)}"
+        target="_blank" rel="noopener noreferrer"
+        data-cursor="BUY"&gt;구매하기${icon.arrow}&lt;/a&gt;`
+  : `&lt;button class="product-card__add" type="button"
+        data-add-to-cart="${esc(product.slug)}"&gt;담기${icon.arrow}&lt;/button&gt;`}</code></pre>
+
+    <p>상세 페이지(<code>pages.mjs &gt; productDetail</code>)의 담기 버튼도 같은 방식으로 갈라 줍니다.</p>
+
+    <h4>여기서 결정이 필요합니다</h4>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>방식</th><th>장바구니 페이지</th><th>맞는 경우</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>전면 이관</td>
+            <td><code>/shop/cart/</code> 라우트를 <code>build.mjs</code> 에서 제거</td>
+            <td>모든 판매를 카페24에서 받을 때. 가장 단순합니다.</td>
+          </tr>
+          <tr>
+            <td>병행</td>
+            <td>유지 — 소량은 카페24 결제, 대량은 주문서 견적</td>
+            <td>B2B 대량 납품이 함께 있을 때. 위생용지는 이쪽이 현실적입니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>병행을 택하면 카드에 버튼이 둘(<strong>구매하기</strong> / <strong>견적 담기</strong>)이 되므로 <code>.product-card__foot</code> 레이아웃을 손봐야 합니다. 전면 이관을 택하면 <code>assets/js/shop.js</code> 의 장바구니 코드와 <code>shop.css</code> 의 <code>.cart-*</code> 규칙이 죽으므로 함께 걷어냅니다 — <code>node scripts/audit-css.mjs</code> 가 남은 것을 알려 줍니다.</p>
+
+    <h3>4-3. 구조화 데이터의 주소를 바꾼다</h3>
+
+    <span class="file">scripts/build.mjs</span>
+    <pre><code>offers: {
+  '@type': 'Offer',
+  url: p.externalUrl || `${site.origin}/shop/${p.slug}/`,
+  price: p.price,
+  priceCurrency: 'KRW',
+  ...
+}</code></pre>
+
+    <p>지금은 <code>offers.url</code> 이 자기 페이지를 가리킵니다. 실제로 살 수 있는 곳이 카페24가 되면 그쪽을 가리켜야 검색 결과의 링크가 맞습니다.</p>
+
+    <div class="note">
+      <span class="note__t">같이 처리할 것</span>
+      <p>실제 판매가 시작되면 <code>Product</code> JSON-LD 에 <code>availability</code> 와 <code>priceValidUntil</code> 을 넣을 수 있게 됩니다. 지금 빼 둔 이유는 가격이 예시값이라 확정된 판매 조건인 것처럼 신호를 보내지 않기 위해서였습니다. <strong>확정가로 바뀌는 시점에 함께 넣으세요.</strong></p>
+    </div>
+
+    <h3>4-4. 화면 문구도 함께 바꿉니다</h3>
+
+    <p>코드만 바꾸고 문구를 두면 앞뒤가 안 맞습니다. 다음 세 곳이 <strong>"결제 없음"을 전제로 쓰여 있습니다.</strong></p>
+    <ul>
+      <li><code>shopMeta.notice</code> — 예시 가격 고지</li>
+      <li><code>pages.mjs &gt; productDetail</code> 의 <code>.product__notes</code></li>
+      <li><code>pages.mjs &gt; cartPage</code> 의 "결제가 이루어지지 않습니다" 안내</li>
+    </ul>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="api">
+    <div class="step-head">
+      <span class="step-head__n">05</span>
+      <h2>상품 등록 자동화</h2>
+    </div>
+
+    <p>20종은 CSV 로 한 번 올리면 끝나지만, 가격 개정이나 품목 추가가 반복되면 API 쪽이 낫습니다.</p>
+
+    <h3>5-1. 준비물</h3>
+    <ol class="steps">
+      <li><p><strong>카페24 개발자센터에 앱을 등록</strong>하고 <code>client_id</code> 와 <code>client_secret</code> 을 받습니다.</p></li>
+      <li><p><strong>필요한 권한(scope)만 신청</strong>합니다. 상품 등록이면 상품 읽기·쓰기면 충분합니다. 주문 권한은 필요할 때 추가하세요.</p></li>
+      <li>
+        <div class="steps__body">
+          <p><strong>OAuth 2.0 인가 코드 흐름으로 토큰을 받습니다.</strong></p>
+          <p>액세스 토큰은 만료되므로 리프레시 토큰으로 갱신하는 처리가 필요합니다.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="note note--soft">
+      <span class="note__t">확인 필요</span>
+      <p>엔드포인트 경로, scope 이름, 토큰 만료 시간은 API 버전에 따라 다릅니다. <strong>반드시 개발자센터 문서에서 현재 값을 확인</strong>하고 시작하세요. 이 문서에 적힌 값을 그대로 믿지 마십시오.</p>
+    </div>
+
+    <h3>5-2. 입력 자료는 이미 있습니다</h3>
+
+    <p><code>npm run export</code> 가 만드는 <code>export/products.json</code> 이 그대로 API 입력입니다.</p>
+
+    <span class="file">export/products.json (한 항목)</span>
+    <pre><code>{
+  "sku": "ILM-JR-300",
+  "name": "업소용 점보롤 2겹 300m",
+  "nameEn": "JUMBO ROLL 2PLY 300M",
+  "category": "점보롤티슈",
+  "price": 42000,
+  "unit": "박스",
+  "pack": "12롤 / 박스",
+  "summary": "가장 많이 나가는 표준 점보롤입니다...",
+  "specs": [ { "k": "겹수", "v": "2겹 엠보싱" }, ... ],
+  "detailHtml": "&lt;p&gt;...&lt;/p&gt;&lt;table&gt;...&lt;/table&gt;",
+  "image": "ILM-JR-300.webp",
+  "sourceUrl": "https://www.ilumos.co.kr/shop/jumbo-roll-300/"
+}</code></pre>
+
+    <p><code>sku</code> 를 자체 상품코드로 넣어 두면 <strong>등록 후 상품번호를 되찾을 때 짝을 맞출 수 있습니다.</strong> 이름으로 매칭하려 들지 마세요 — 공백과 특수문자에서 반드시 어긋납니다.</p>
+
+    <h3>5-3. 이미지</h3>
+    <p><code>export/images/</code> 의 파일명이 <code>sku</code> 와 같습니다. 이미지를 먼저 올리고 상품을 등록해야 연결됩니다.</p>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="truth">
+    <div class="step-head">
+      <span class="step-head__n">06</span>
+      <h2>가격 이원화 — 이 연동의 진짜 위험</h2>
+    </div>
+
+    <p>기술적으로 어려운 부분은 없습니다. <strong>실제로 사고가 나는 곳은 값이 두 군데 있다는 사실 자체입니다.</strong></p>
+
+    <p>연동이 끝나면 같은 상품의 가격이 두 곳에 존재하게 됩니다.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>위치</th><th>무엇</th><th>누가 바꾸나</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src/data/site.mjs</code></td><td>홈페이지에 보이는 가격</td><td>제작사 (빌드 필요)</td></tr>
+          <tr><td>카페24 관리자</td><td>실제 결제되는 가격</td><td>고객 (즉시 반영)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>고객이 카페24에서 가격을 올리면 홈페이지는 옛 가격을 계속 보여 줍니다. 방문자는 싼 가격을 보고 들어가 비싼 가격으로 결제하게 됩니다. <strong>표시광고 문제가 될 수 있습니다.</strong></p>
+
+    <h4>세 가지 대응 중 하나를 반드시 고르세요</h4>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>방식</th><th>내용</th><th>비용</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>가격을 안 보여준다</td>
+            <td>홈페이지 카드에서 가격을 빼고 "카페24에서 확인"으로 넘김</td>
+            <td>없음. 가장 안전하지만 카탈로그의 설득력이 떨어집니다.</td>
+          </tr>
+          <tr>
+            <td>주기적 대조</td>
+            <td>Admin API 로 가격을 읽어 <code>site.mjs</code> 와 다르면 알림</td>
+            <td>스크립트 하나. 실용적인 절충입니다.</td>
+          </tr>
+          <tr>
+            <td>빌드 시 동기화</td>
+            <td>빌드마다 카페24에서 가격을 읽어 그 값으로 렌더</td>
+            <td>카페24가 단일 출처가 됩니다. 빌드가 외부 API 에 의존하게 되는 것이 대가입니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span class="note__t">권장</span>
+      <p>거래 규모가 작은 초기에는 <strong>주기적 대조</strong>가 맞습니다. 빌드를 외부 API 에 묶으면 카페24가 응답하지 않는 날 사이트를 배포할 수 없게 됩니다.</p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="launch">
+    <div class="step-head">
+      <span class="step-head__n">07</span>
+      <h2>오픈 체크리스트</h2>
+    </div>
+
+    <h4>연결 전</h4>
+    <ul class="check">
+      <li>고객이 확정 판매가를 서면으로 확정했다</li>
+      <li><code>site.mjs</code> 의 <code>price</code> 가 전부 확정가로 바뀌었다</li>
+      <li><code>npm run export</code> 를 다시 실행했다</li>
+      <li>카페24에 상품 20종과 이미지가 모두 등록됐다</li>
+      <li>상품번호를 <code>sku</code> 와 짝지어 회수했다</li>
+    </ul>
+
+    <h4>연결 후</h4>
+    <ul class="check">
+      <li>상품 20종의 <code>externalUrl</code> 을 브라우저에서 하나씩 열어 확인했다 (자동 생성한 주소는 반드시 육안 확인)</li>
+      <li>홈페이지 가격과 카페24 가격이 20종 모두 일치한다</li>
+      <li>"결제 없음"을 전제로 쓴 안내 문구 세 곳을 고쳤다</li>
+      <li>장바구니 처리 방침(전면 이관 / 병행)을 정하고 그에 맞게 정리했다</li>
+      <li><code>offers.url</code> 이 카페24 주소를 가리킨다</li>
+      <li><code>node scripts/check.mjs</code> 가 통과한다</li>
+      <li><code>node scripts/audit-css.mjs</code> 에 죽은 클래스가 없다</li>
+      <li>실제 카드로 소액 결제하고 취소까지 확인했다</li>
+    </ul>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+
+  <section id="faq">
+    <div class="step-head">
+      <span class="step-head__n">08</span>
+      <h2>고객이 자주 묻는 것</h2>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>질문</th><th>답변</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>홈페이지에서 바로 결제하면 안 되나요?</td>
+            <td>가능하지만 서버와 PG 계약이 따로 필요하고, 교환·환불·정산까지 직접 만들어야 합니다. 초기에는 카페24에 맡기는 편이 비용과 위험이 모두 낮습니다.</td>
+          </tr>
+          <tr>
+            <td>왜 결제할 때 다른 사이트로 넘어가나요?</td>
+            <td>카드 결제를 안전하게 처리하는 곳이 따로 있기 때문입니다. 디자인은 카페24 스킨에서 최대한 맞출 수 있습니다.</td>
+          </tr>
+          <tr>
+            <td>가격은 어디서 바꾸나요?</td>
+            <td>카페24 관리자에서 바꾸시고, <strong>반드시 알려 주셔야</strong> 홈페이지 표시 가격도 맞춥니다. 06장의 대조 방식을 함께 안내하세요.</td>
+          </tr>
+          <tr>
+            <td>재고가 자동으로 연결되나요?</td>
+            <td>기본은 연결되지 않습니다. 홈페이지는 정적 페이지라 품절 표시가 실시간으로 바뀌지 않습니다. 필요하면 별도 작업입니다.</td>
+          </tr>
+          <tr>
+            <td>대량 주문은 어떻게 받나요?</td>
+            <td>기존 주문서(견적) 흐름을 남겨 두면 됩니다. 04-2 의 병행 방식입니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>이 문서는 정적 사이트에 호스팅형 커머스를 연결하는 작업 기준입니다. 카페24의 메뉴·API 사양·주소 형태는 버전에 따라 달라지므로, 값은 반드시 현재 문서와 실제 화면에서 확인한 뒤 확정하세요.</p>
+    <p>고객 배포용 문서: 「쇼핑몰 개설 3단계」 (shop-setup-guide.html)</p>
+    <p class="stamp">문서 버전 rev.4 · 2026-08-31</p>
+  </footer>
+
+</div>
+</body>
+</html>

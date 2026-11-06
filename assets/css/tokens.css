@@ -124,10 +124,12 @@
      accepted here because "IBM globally" was the explicit requirement; the only
      way to get a Korean serif is to load a non-IBM face (Noto Serif KR was doing
      that job and has been removed). See MISSING.md > C1. */
-  --font-display: 'IBM Plex Sans KR', 'IBM Plex Sans', system-ui, sans-serif;
-  --font-body: 'IBM Plex Sans KR', 'IBM Plex Sans', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'IBM Plex Sans KR', ui-monospace, monospace;
-  --font-serif: 'IBM Plex Serif', 'IBM Plex Sans KR', Georgia, serif;
+  /* 'IBM Plex Sans KR Fallback' 은 웹글꼴이 도착하기 전에 쓰는 맑은 고딕 크기 보정본 —
+     글꼴이 바뀌어도 줄바꿈이 다시 나뉘지 않게 합니다(파일 맨 아래 @font-face). */
+  --font-display: 'IBM Plex Sans KR', 'IBM Plex Sans KR Fallback', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans KR', 'IBM Plex Sans KR Fallback', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'IBM Plex Sans KR', 'IBM Plex Sans KR Fallback', ui-monospace, monospace;
+  --font-serif: 'IBM Plex Serif', 'IBM Plex Sans KR', 'IBM Plex Sans KR Fallback', Georgia, serif;
 
   /* IBM Plex Sans KR tops out at 700, so the display weight is 700, not the
      Gabarito 900 the census measured. */
@@ -281,4 +283,15 @@
     --space-section: 3.25rem;
     --space-section-lg: 3.5rem;
   }
+}
+
+/* 웹글꼴(IBM Plex Sans KR)이 오기 전 대체 글꼴 — 맑은 고딕/Apple SD Gothic Neo 를
+   IBM Plex Sans KR 크기에 맞춰 둬서, 글꼴이 교체될 때 줄이 다시 나뉘지 않습니다. */
+@font-face {
+  font-family: 'IBM Plex Sans KR Fallback';
+  src: local('Malgun Gothic'), local('Apple SD Gothic Neo');
+  size-adjust: 87.6%;
+  ascent-override: 123.9%;
+  descent-override: 47.4%;
+  line-gap-override: 0%;
 }

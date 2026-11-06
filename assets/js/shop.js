@@ -234,6 +234,15 @@ export function initCartPage() {
      오래된 장바구니가 빈 줄로 나타나지 않게. */
   const liveItems = () => readCart().filter((it) => bySlug.has(it.slug))
 
+  /* 버린 것은 저장소에서도 지웁니다. 안 그러면 헤더 배지(저장소를 그대로 셈)와
+     이 화면(카탈로그에 있는 것만 셈)의 개수가 어긋납니다 — 6개 담김인데 5개가
+     보이는 식으로. 카탈로그를 아는 곳은 이 페이지뿐이라 여기서 한 번 정리합니다. */
+  {
+    const stored = readCart()
+    const live = liveItems()
+    if (live.length !== stored.length) writeCart(live)
+  }
+
   function render() {
     const items = liveItems()
     list.textContent = ''

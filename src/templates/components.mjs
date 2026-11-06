@@ -195,6 +195,8 @@ export function logoWall(logos = [], { perCell = 2, manifest = {} } = {}) {
                  meaning and the accessible name both survive. */
               return `<figure class="logo-card${i === 0 ? ' is-active' : ''}">
               <img src="${esc(m.src || `/assets/images/${it.image}.webp`)}" alt="${esc(it.label)}"
+                   srcset="/assets/images/${esc(it.image)}-400.webp 400w, ${esc(m.src || `/assets/images/${it.image}.webp`)} 800w"
+                   sizes="(max-width: 767px) 50vw, 25vw"
                    width="${m.width || 800}" height="${m.height || 600}" loading="lazy" decoding="async">
               <figcaption class="logo-card__label" lang="en">${esc(it.labelEn || it.label)}</figcaption>
             </figure>`
@@ -370,7 +372,7 @@ export function contactSection(contact, site, { id = 'contact' } = {}) {
             <dl class="contact__detail-list">
               <div class="contact__detail"><dt>전화</dt><dd><a href="tel:${esc(site.phone.replace(/[^0-9+]/g, ''))}" data-underline-link>${esc(site.phone)}</a></dd></div>
               <div class="contact__detail"><dt>팩스</dt><dd>${esc(site.fax)}</dd></div>
-              <div class="contact__detail"><dt>이메일</dt><dd><a href="mailto:${esc(site.email)}" data-underline-link>${esc(site.email)}</a></dd></div>
+              <div class="contact__detail"><dt>이메일</dt><dd><a href="mailto:${esc(site.email)}" data-underline-link>${esc(site.email).replace('@', '@<wbr>')}</a></dd></div>
               <div class="contact__detail"><dt>주소</dt><dd>${esc(site.address.region)} ${esc(site.address.locality)} ${esc(site.address.street)}</dd></div>
               <div class="contact__detail"><dt>운영 시간</dt><dd>${esc(site.hours)}</dd></div>
             </dl>
@@ -415,6 +417,9 @@ export function qtyStepper({ id, value = 1, label = '수량' }) {
  * `data-*` 는 shop.js 의 분류/정렬이 읽는 값입니다. DOM 을 다시 만들지 않고
  * 이미 그려진 카드를 숨기거나 순서만 바꾸므로, 자바스크립트가 꺼져 있어도
  * 20종이 전부 그대로 보입니다.
+ *
+ * `product.externalUrl` 이 있으면 「담기」 대신 외부 「구매하기」 링크를 냅니다
+ * (site.mjs > products 주석 참고). 같은 클래스라 모양은 같고 역할만 다릅니다.
  */
 export function productCard(product, category, index, manifest) {
   return `<article class="product-card" data-product
@@ -432,9 +437,13 @@ export function productCard(product, category, index, manifest) {
           <p class="product-card__spec">${esc(product.pack)} · ${esc(product.sku)}</p>
           <div class="product-card__foot">
             ${priceBlock(product)}
-            <button class="product-card__add" type="button"
+            ${product.externalUrl
+              ? `<a class="product-card__add" href="${esc(product.externalUrl)}"
+                    target="_blank" rel="noopener noreferrer" data-cursor="BUY"
+                    aria-label="${esc(product.name)} 구매하기 (새 창)">구매하기${icon.arrow}</a>`
+              : `<button class="product-card__add" type="button"
                     data-add-to-cart="${esc(product.slug)}" data-cursor="ADD"
-                    aria-label="${esc(product.name)} 장바구니에 담기">담기${icon.arrow}</button>
+                    aria-label="${esc(product.name)} 장바구니에 담기">담기${icon.arrow}</button>`}
           </div>
         </div>
       </article>`

@@ -469,6 +469,18 @@ export function initHeroGL(host) {
     return null
   }
 
+  /* GPU 가 없는 환경(SwiftShader·llvmpipe 같은 소프트웨어 렌더러)에서는 이 장면을
+     CPU 로 그리게 돼 메인 스레드가 수 초씩 막힙니다. 그런 곳은 정적 배경(.unicorn__fallback
+     + 숲 사진)만 보여 주고 WebGL 은 켜지 않습니다. GPU 가 있는 일반 기기는 그대로입니다. */
+  try {
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info')
+    const gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '') : ''
+    if (/swiftshader|llvmpipe|software|basic render/i.test(gpu)) {
+      canvas.remove()
+      return null
+    }
+  } catch (_) { /* 확인 못 하면 그대로 진행 */ }
+
   // fullscreen triangle
   const quadVao = gl.createVertexArray()
   gl.bindVertexArray(quadVao)
@@ -609,9 +621,36 @@ export function initHeroGL(host) {
   const INTRO_SECONDS = 0.55
   const start = performance.now()
 
+  /* 느린 기기 보호: 프레임 간격이 계속 길면(25fps 미만) 별 개수를 절반씩 줄이고,
+     그래도 느리면(15fps 미만) 정적 배경으로 물러납니다. 빠른 기기는 1.0 그대로. */
+  let fieldShare = 1
+  let tickAt = 0
+  let tickSum = 0
+  let tickN = 0
+
+  function adapt(now) {
+    if (tickAt) {
+      const dt = now - tickAt
+      if (dt < 250) { tickSum += dt; tickN += 1 }
+    }
+    tickAt = now
+    if (tickN < 40) return
+    const avg = tickSum / tickN
+    tickSum = 0
+    tickN = 0
+    if (avg > 66) {
+      lost = true
+      host.removeAttribute('data-gl')
+      canvas.remove()
+    } else if (avg > 40 && fieldShare > 0.25) {
+      fieldShare *= 0.5
+    }
+  }
+
   function frame(now) {
     raf = requestAnimationFrame(frame)
-    if (!visible || lost) return
+    if (!visible || lost) { tickAt = 0; return }
+    adapt(now)
 
     resize()
     // Under reduced motion the clock freezes: the star stops spinning and the
@@ -669,7 +708,7 @@ export function initHeroGL(host) {
     gl.uniform1f(U.fieldScroll, scroll)
     gl.uniform1f(U.fieldAspect, aspectField)
     gl.uniform1f(U.fieldDpi, dpi())
-    gl.drawArrays(gl.POINTS, 0, FIELD_COUNT)
+    gl.drawArrays(gl.POINTS, 0, Math.max(1, Math.floor(FIELD_COUNT * fieldShare)))
     gl.disable(gl.BLEND)
 
     // pass 2 — wireframe star, additive so the lines glow rather than occlude.

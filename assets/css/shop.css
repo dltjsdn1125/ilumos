@@ -376,6 +376,8 @@
 
 .product__status { font-size: var(--t-xs); color: var(--accent-lime); min-height: 1.4em; }
 .product__status:empty { min-height: 0; }
+/* 외부 스토어 품목의 "새 창으로 열립니다" 안내. 담김 신호가 아니라 라임을 쓰지 않습니다. */
+.product__status--note { color: var(--dim); }
 
 .product__links { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
 

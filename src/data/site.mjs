@@ -21,13 +21,19 @@
 export const site = {
   name: '(주)이루모스',
   nameLatin: 'ILUMOS',
-  title: '키친타월 · 점보롤티슈 · 두루마리티슈 | (주)이루모스',
+  title: '충남 계룡 위생용지 키친타월 · 점보롤티슈 | (주)이루모스',
   description:
-    '(주)이루모스는 키친타월, 점보롤티슈, 두루마리티슈를 공급하는 위생용지 기업입니다. 가정용 소량부터 업소용 대량 납품, 로고 인쇄 주문제작까지 상담해 드립니다.',
-  origin: 'https://www.ilumos.co.kr',
+    '충남 계룡의 위생용지 공급사 (주)이루모스입니다. 키친타월, 점보롤티슈, 두루마리티슈를 가정용 소량부터 업소용 대량 납품까지 공급하고, 로고 인쇄 주문제작도 상담해 드립니다.',
+  /* 지금 실제로 열리는 주소. 정식 도메인(www.ilumos.co.kr)을 연결하면 이 한 줄만
+     바꾸면 canonical · og:image · sitemap · JSON-LD 가 같이 따라옵니다. */
+  origin: 'https://ilumos.pages.dev',
+  /* 사이트맵 lastmod 기준일 — 내용을 실제로 고친 날에만 바꿉니다(빌드 날짜 아님). */
+  lastmod: '2026-11-06',
+  /* 영업시간 구조화 값 — `hours` 문구와 같은 내용입니다. */
+  openingHours: { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '09:00', closes: '18:00' },
   locale: 'ko_KR',
   lang: 'ko',
-  ogImage: '/assets/images/og-cover.webp',
+  ogImage: '/assets/images/og-share.webp', // 1200×630 사본 (원본 og-cover.webp 는 세로형)
   city: '충남 계룡',
   ceo: '김상우',
   address: { street: '두마면 입암길 76-18 (입암리 653)', locality: '계룡시', region: '충청남도', country: 'KR' },
@@ -61,7 +67,7 @@ export const hero = {
   eyebrow: '(Kitchen towel · Jumbo roll · Toilet tissue)',
   words: ['EVERYDAY', 'ESSENTIAL', 'PAPER'],
   scrambleWords: ['ESSENTIAL', 'ABSORBENT', 'RELIABLE', 'ILUMOS'],
-  lead: '매일 쓰는 것일수록 품질이 그대로 드러납니다. 키친타월부터 점보롤티슈까지, 필요한 만큼 제때 보내 드립니다.',
+  lead: '충남 계룡의 위생용지 공급사 (주)이루모스입니다. 키친타월, 점보롤티슈, 두루마리티슈를 한 박스부터 정기 납품까지 필요한 만큼 제때 보내 드립니다.',
   cta: { label: '견적 요청', href: '/#contact' },
   ctaSecondary: { label: '제품 보기', href: '/#services' },
   scrollHint: 'SCROLL',
@@ -713,7 +719,15 @@ export const shopCategories = [
 ]
 
 /* 20종. `category` 는 shopCategories 의 slug 이면서 services 의 slug 이기도 해서,
-   상세 화면에서 해당 품목 소개 페이지로 그대로 이어집니다. */
+   상세 화면에서 해당 품목 소개 페이지로 그대로 이어집니다.
+
+   `externalUrl` (선택) — 카페24 등 호스팅형 커머스에 상품을 등록한 뒤 회수한
+   그 상품의 주소. 값이 있으면 카드와 상세의 「담기」가 「구매하기」 외부 링크로
+   바뀌고 `Product` JSON-LD 의 offers.url 도 그쪽을 가리킵니다. 없으면 기존
+   장바구니 → 주문서(견적) 흐름 그대로입니다. 품목마다 따로 켤 수 있어 소량은
+   외부 결제, 대량은 견적으로 갈라 받는 병행 운영이 됩니다.
+   ⚠ 주소 형태는 스킨·설정마다 달라 실제 등록된 상품을 열어 확인한 뒤 넣으십시오.
+   See docs/cafe24-integration-guidebook.html > 04. */
 export const products = [
   {
     slug: 'kitchen-towel-home-150',

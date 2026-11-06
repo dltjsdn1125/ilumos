@@ -155,7 +155,9 @@ const routes = [
           manufacturer: { '@id': `${site.origin}/#organization` },
           offers: {
             '@type': 'Offer',
-            url: `${site.origin}/shop/${p.slug}/`,
+            /* 외부 스토어에 올린 품목은 실제로 살 수 있는 곳을 가리켜야 검색
+               결과의 링크가 맞습니다 (docs/cafe24-integration-guidebook.html > 4-3). */
+            url: p.externalUrl || `${site.origin}/shop/${p.slug}/`,
             price: p.price,
             priceCurrency: 'KRW',
             eligibleQuantity: { '@type': 'QuantitativeValue', minValue: 1, unitText: p.unit },
@@ -242,7 +244,8 @@ for (const route of routes) {
 
 /* ── sitemap.xml ────────────────────────────────────────────────────────── */
 
-const today = new Date().toISOString().slice(0, 10)
+/* lastmod 는 빌드한 날이 아니라 내용을 실제로 고친 날(site.lastmod)입니다. */
+const today = site.lastmod
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${routes
@@ -264,6 +267,30 @@ await writeFile(join(ROOT, 'sitemap.xml'), sitemap, 'utf8')
 await writeFile(
   join(ROOT, 'robots.txt'),
   `User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n`,
+  'utf8'
+)
+
+/* ── llms.txt (AI 검색용 안내 — 사이트에 적힌 사실만) ─────────────────────── */
+
+await writeFile(
+  join(ROOT, 'llms.txt'),
+  `# ${site.name}
+
+> 충남 계룡의 위생용지 공급사입니다. 키친타월, 점보롤티슈, 두루마리티슈를 가정용 소량부터 업소용 대량 납품까지 공급하고, 로고 인쇄 주문제작을 상담합니다.
+
+- 주소: ${site.address.region} ${site.address.locality} ${site.address.street}
+- 전화: ${site.phone}
+- 이메일: ${site.email}
+- 영업시간: ${site.hours}
+
+## 페이지
+- [첫 화면](${site.origin}/): 회사 소개와 견적 요청
+- [온라인 주문](${site.origin}/shop/): 주문 가능한 품목 ${products.length}종
+${services.map((s) => `- [${s.title}](${site.origin}/services/${s.slug}/): ${s.summary}`).join('\n')}
+- [사용처 안내](${site.origin}/portfolio/): 업종별 위생용지 구성안
+- [고객센터](${site.origin}/faq/): 자주 묻는 질문
+- [위생용지 저널](${site.origin}/blog/): 선택 기준과 사용 방법
+`,
   'utf8'
 )
 

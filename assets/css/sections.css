@@ -384,7 +384,11 @@ body.is-home .unicorn__scene { opacity: 1; }
 
 .contact__detail-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* 칸 수를 고정하지 않습니다. 이 목록은 1.35fr/1fr 로 나뉜 좁은 aside 안에 있어
+     3칸 고정이면 칸이 이메일 한 덩어리(≈11.25 × t-sm)보다 좁아져 992~1920px 전
+     구간에서 잘렸습니다(.contact 가 overflow:hidden 이라 스크롤 대신 절단).
+     이메일이 들어가는 폭이 확보될 때만 칸을 늘립니다 — 폭에 따라 1~3칸. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--t-sm) * 11.5)), 1fr));
   gap: var(--gap-reg);
   margin-top: var(--space-lg);
 }
@@ -398,7 +402,8 @@ body.is-home .unicorn__scene { opacity: 1; }
   margin-bottom: var(--space-3xs);
 }
 
-.contact__detail dd { font-size: var(--t-sm); }
+/* 안전망: 어떤 값이 와도 잘리지 않게. 이메일은 마크업의 <wbr> 이 @ 뒤를 먼저 씁니다. */
+.contact__detail dd { font-size: var(--t-sm); overflow-wrap: anywhere; }
 
 @media screen and (max-width: 767px) {
   .contact__detail-list { grid-template-columns: minmax(0, 1fr); }
@@ -530,3 +535,41 @@ body.is-home .unicorn__scene { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   .about-hero__media video { display: none; }
 }
+
+/* ── 온라인 주문 품목 바로가기 (홈) ─────────────────────────────────────────
+   글 링크 목록. 모바일 1열 → 768px 2열 → 1024px 3열. 링크 높이 44px 이상. */
+.shop-links__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-md);
+}
+
+.shop-links__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md) var(--space-lg);
+}
+
+@media (min-width: 768px) { .shop-links__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .shop-links__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.shop-links__group-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--space-2xs);
+}
+
+.shop-links__group ul { list-style: none; margin: 0; padding: 0; }
+
+.shop-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+
+.shop-links__note { margin-top: var(--space-md); opacity: 0.75; font-size: 0.9rem; }

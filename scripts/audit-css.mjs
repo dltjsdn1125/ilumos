@@ -14,7 +14,9 @@ import { join, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const SKIP = new Set(['node_modules', 'src', 'scripts', 'assets', '.git'])
+/* docs/ 는 사이트가 아닌 매뉴얼(자체 스타일 내장)이고 export/ 는 산출물입니다 —
+   check.mjs 와 같은 이유로 뺍니다. */
+const SKIP = new Set(['node_modules', 'src', 'scripts', 'assets', '.git', 'docs', 'export'])
 
 /* Utilities that are part of the design-system surface rather than any one
    component. Unused today is not a defect — they exist to be reached for. */
@@ -22,6 +24,9 @@ const KEEP = [
   /^u-/, /^container--/, /^grid--/, /^stack--/, /^padding-section--/,
   /^media--/, /^button--/, /^theme-/, /^is-/, /^has-/, /^section--/,
   /^lenis/, /^field--/, /^pager__item--/, /^hairline$/,
+  /* 데이터로만 켜지는 마크업. products[].externalUrl 이 있는 품목의 상세에서만
+     나오므로 시안 데이터로 빌드하면 한 번도 안 나옵니다 — 죽은 규칙이 아닙니다. */
+  /^product__status--note$/,
 ]
 
 // ── collect built HTML ──────────────────────────────────────────────────────

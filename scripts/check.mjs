@@ -9,7 +9,10 @@ import { join, relative, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const SKIP_DIRS = new Set(['node_modules', 'src', 'scripts', 'assets', '.git'])
+/* docs/ 는 제작사·고객용 매뉴얼(카페24 연동 가이드북 등)이고 export/ 는
+   npm run export 산출물입니다. 둘 다 사이트 라우트가 아니므로 SEO·구조
+   검사 대상에서 뺍니다 — 넣으면 canonical·JSON-LD 가 없다고 실패합니다. */
+const SKIP_DIRS = new Set(['node_modules', 'src', 'scripts', 'assets', '.git', 'docs', 'export'])
 
 const pages = []
 ;(function walk(dir) {

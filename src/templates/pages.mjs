@@ -56,11 +56,11 @@ export function home(manifest) {
     <section class="hero theme-dark padding-global" id="top">
       <div class="container hero__inner">
         <div class="hero__eyebrow">${eyebrow(hero.eyebrow)}</div>
-        <h2 class="hero__title">
+        <h1 class="hero__title">
           <span>${esc(hero.words[0])}</span>
           <span class="hero__scramble" data-word-cycle='${JSON.stringify(hero.scrambleWords)}'>${esc(hero.words[1])}</span>
           <span>${esc(hero.words[2])}</span>
-        </h2>
+        </h1>
         <div class="hero__foot">
           <p class="hero__lead u-lead" data-split>${esc(hero.lead)}</p>
           <div class="hero__foot-right">
@@ -195,18 +195,38 @@ export function home(manifest) {
       </div>
     </section>
 
-    <!-- FAQ: the live page's single <h1> lives on this block, not the hero -->
+    <!-- FAQ: 홈의 대제목(h1)은 히어로입니다. 이 블록 제목은 h2(글자 모양은 .faq__h1 그대로). -->
     <section class="section padding-global padding-section" id="faq">
       <div class="container">
         <div class="faq__grid">
           <div class="faq__aside">
             <div class="section-head__eyebrow">${eyebrow(faqMeta.eyebrow)}</div>
-            <h1 class="faq__h1" data-split>${esc(faqMeta.heading)}</h1>
+            <h2 class="faq__h1" data-split>${esc(faqMeta.heading)}</h2>
             <p class="u-dim" style="margin-top:var(--space-sm);max-width:32ch">${esc(faqMeta.lead)}</p>
             <div style="margin-top:var(--space-md)">${button({ label: '전체 FAQ 보기', href: '/faq/', variant: 'ghost' })}</div>
           </div>
           <div>${accordion(faq.slice(0, 5), { idPrefix: 'home-faq' })}</div>
         </div>
+      </div>
+    </section>
+
+    <!-- 온라인 주문 품목 바로가기: 품목 상세 페이지 20곳이 첫 화면에서 링크 한 번으로 닿게 하는 글 링크 목록 -->
+    <section class="section padding-global padding-section shop-links" id="shop-links" aria-labelledby="shop-links-title">
+      <div class="container">
+        <h2 class="shop-links__title" id="shop-links-title">온라인 주문 품목 ${products.length}종</h2>
+        <div class="shop-links__grid">
+          ${shopCategories
+            .map((c) => {
+              const items = products.filter((p) => p.category === c.slug)
+              if (!items.length) return ''
+              return `<div class="shop-links__group">
+            <h3 class="shop-links__group-title"><a href="/services/${esc(c.slug)}/">${esc(c.label)}</a></h3>
+            <ul>${items.map((p) => `<li><a href="/shop/${esc(p.slug)}/">${esc(p.name)}</a></li>`).join('')}</ul>
+          </div>`
+            })
+            .join('')}
+        </div>
+        <p class="shop-links__note"><a href="/shop/">온라인 주문 전체 보기</a> · 영업시간 ${esc(site.hours)} · ${Number(site.lastmod.slice(0, 4))}년 ${Number(site.lastmod.slice(5, 7))}월 기준</p>
       </div>
     </section>
 
@@ -648,7 +668,18 @@ export function productDetail(product, manifest) {
             ${priceBlock(product, { className: 'price--lg' })}
             <p class="product__panel-pack">${esc(product.pack)} · 최소 1${esc(product.unit)}부터</p>
 
-            <div class="product__buy">
+            ${product.externalUrl
+              /* 외부 스토어에 등록된 품목 — 수량·결제는 그쪽 상세에서 고르므로
+                 스테퍼와 장바구니를 내지 않습니다. 대량 견적 경로는 그대로 둡니다. */
+              ? `<div class="product__buy">
+              ${button({ label: '구매하기', href: product.externalUrl, variant: 'solid', size: 'lg', cursor: 'BUY', attrs: ' target="_blank" rel="noopener noreferrer"' })}
+            </div>
+            <p class="product__status product__status--note" role="note">온라인 스토어의 상품 페이지가 새 창으로 열립니다.</p>
+
+            <div class="product__links">
+              ${button({ label: '수량 견적 문의', href: '/#contact', variant: 'ghost', cursor: 'MAIL' })}
+            </div>`
+              : `<div class="product__buy">
               ${qtyStepper({ id: `qty-${product.slug}`, label: `${product.name} 수량` })}
               ${button({ label: '장바구니에 담기', variant: 'solid', size: 'lg', cursor: 'ADD', attrs: ` data-add-to-cart="${esc(product.slug)}" data-qty-source` })}
             </div>
@@ -657,7 +688,7 @@ export function productDetail(product, manifest) {
             <div class="product__links">
               ${button({ label: '장바구니 보기', href: '/shop/cart/', variant: 'ghost' })}
               ${button({ label: '수량 견적 문의', href: '/#contact', variant: 'ghost', cursor: 'MAIL' })}
-            </div>
+            </div>`}
 
             <ul class="product__notes">
               <li>표시 가격은 시안용 예시입니다. 실제 단가는 수량과 납품 조건에 따라 달라집니다.</li>

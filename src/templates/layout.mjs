@@ -16,18 +16,32 @@ function fonts() {
   // Sans KR, Sans, Mono, Serif. No other foundry is requested anywhere on the
   // site (Noto Serif KR used to cover Hangul in the serif role and was removed
   // so the stack is entirely IBM). See tokens.css > type families.
+  //
+  // 글꼴 CSS 는 화면 그리기를 막지 않게 media="print" → onload 로 붙입니다.
+  // 늦게 와도 tokens.css 의 'IBM Plex Sans KR Fallback' 이 자리를 잡고 있어서
+  // 줄바꿈이 흔들리지 않습니다. 실제 쓰는 굵기(300·이탤릭 Sans 제외)만 요청합니다.
+  const href =
+    'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap'
   return `<link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">`
+  <link rel="stylesheet" href="${href}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="${href}"></noscript>`
 }
 
 function jsonLd(page) {
   const graph = [
     {
-      '@type': 'Organization',
+      '@type': ['Organization', 'LocalBusiness'],
       '@id': `${site.origin}/#organization`,
       name: site.name,
       url: `${site.origin}/`,
+      image: `${site.origin}${site.ogImage}`,
+      openingHoursSpecification: {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: site.openingHours.days,
+        opens: site.openingHours.opens,
+        closes: site.openingHours.closes,
+      },
       email: site.email,
       telephone: site.phone,
       faxNumber: site.fax,
@@ -94,6 +108,7 @@ function head(page) {
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/favicon.svg">
   <link rel="manifest" href="/site.webmanifest">
+  ${page.path === '/' ? '<link rel="preload" as="image" href="/assets/images/hero-forest.webp" type="image/webp" fetchpriority="high">' : ''}
   ${fonts()}
   <link rel="stylesheet" href="/assets/css/lenis.css">
   <link rel="stylesheet" href="/assets/css/tokens.css">

@@ -1,0 +1,14 @@
+# Cloudflare Pages — 정적 파일 캐시. HTML 에는 넣지 않습니다.
+# CSS·JS 는 파일 이름이 안 바뀌므로 하루, 사진·글꼴·영상은 일주일.
+/assets/images/*
+  Cache-Control: public, max-age=604800
+/assets/fonts/*
+  Cache-Control: public, max-age=604800
+/assets/video/*
+  Cache-Control: public, max-age=604800
+/assets/favicon.svg
+  Cache-Control: public, max-age=604800
+/assets/css/*
+  Cache-Control: public, max-age=86400
+/assets/js/*
+  Cache-Control: public, max-age=86400

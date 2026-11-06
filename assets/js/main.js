@@ -13,8 +13,19 @@ import { initShop } from './shop.js'
 function boot() {
   document.documentElement.classList.add('js')
 
+  /* WebGL 배경은 첫 화면이 그려지고 페이지가 다 로드된 뒤, 브라우저가 한가할 때 켭니다.
+     첫 화면(LCP)과 같은 시간대에 셰이더 컴파일·별 데이터 생성이 몰려 누름 반응을
+     막지 않게 하기 위해서입니다. 배경은 정적 이미지가 먼저 깔려 있어 모습은 같습니다. */
   const glHost = document.querySelector('.unicorn__item')
-  if (glHost) initHeroGL(glHost)
+  if (glHost) {
+    const startGL = () => {
+      const run = () => initHeroGL(glHost)
+      if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 2000 })
+      else setTimeout(run, 200)
+    }
+    if (document.readyState === 'complete') startGL()
+    else window.addEventListener('load', startGL, { once: true })
+  }
 
   initHeader()
   initMenu()
