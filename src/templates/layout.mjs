@@ -6,26 +6,19 @@
  * the analysed original used CreativeWorkAgency — see MISSING.md > C7.
  */
 
-import { site, nav, marquee as marqueeWords } from '../data/site.mjs'
+import { site, nav, posts, marquee as marqueeWords } from '../data/site.mjs'
 import { esc, icon, marquee } from './components.mjs'
 
 /* ── head ───────────────────────────────────────────────────────────────── */
 
 function fonts() {
-  // Same delivery mechanism the source uses (Google Fonts). IBM Plex ONLY —
-  // Sans KR, Sans, Mono, Serif. No other foundry is requested anywhere on the
-  // site (Noto Serif KR used to cover Hangul in the serif role and was removed
-  // so the stack is entirely IBM). See tokens.css > type families.
-  //
-  // 글꼴 CSS 는 화면 그리기를 막지 않게 media="print" → onload 로 붙입니다.
-  // 늦게 와도 tokens.css 의 'IBM Plex Sans KR Fallback' 이 자리를 잡고 있어서
-  // 줄바꿈이 흔들리지 않습니다. 실제 쓰는 굵기(300·이탤릭 Sans 제외)만 요청합니다.
-  const href =
-    'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap'
-  return `<link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="${href}" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="${href}"></noscript>`
+  // IBM Plex(Sans KR·Mono·Serif)를 자기 서버(assets/fonts)에서 줍니다 — 바깥 글꼴 서버를
+  // 거치지 않아 연결 시간이 빠지고, 글꼴 CSS 때문에 화면 그리기가 늦어지지 않습니다.
+  // 조각 파일과 @font-face 는 scripts/self-host-fonts.mjs 가 만들고(assets/css/fonts.css),
+  // 한글은 unicode-range 로 쪼개져 있어 페이지에 나온 글자의 조각만 내려옵니다.
+  // 모든 @font-face 는 font-display: swap, 대체 글꼴은 tokens.css 의 'IBM Plex Sans KR Fallback'.
+  return `<link rel="preload" href="/assets/fonts/ibm-plex-sans-kr-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/fonts.css">`
 }
 
 function jsonLd(page) {
@@ -54,6 +47,9 @@ function jsonLd(page) {
         addressRegion: site.address.region,
         addressCountry: site.address.country,
       },
+      /* 지도 좌표는 사이트 자료에 없어 넣지 않습니다. site.geo = { lat, lng } 를
+         채우면 그대로 GeoCoordinates 로 나갑니다(지어낸 좌표 금지). */
+      ...(site.geo ? { geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng } } : {}),
       /* 원본 사이트에 SNS 채널 표기가 없어 sameAs 는 비워 둡니다 — 없는 계정을
          만들어 넣지 않습니다. */
       ...(site.social.length ? { sameAs: site.social.map((s) => s.href) } : {}),
@@ -231,6 +227,10 @@ function footer(services, portfolio) {
           <div class="footer__links">
             ${services.slice(0, 6).map((s) => `<a href="/services/${esc(s.slug)}/">${esc(s.title)}</a>`).join('')}
           </div>
+          <p class="footer__col-title" style="margin-top:var(--space-md)">업종별 구성안</p>
+          <div class="footer__links">
+            ${portfolio.map((w) => `<a href="/portfolio/${esc(w.slug)}/">${esc(w.title)}</a>`).join('')}
+          </div>
         </div>
         <div>
           <p class="footer__col-title">바로가기</p>
@@ -242,6 +242,10 @@ function footer(services, portfolio) {
             <a href="/blog/">위생용지 저널</a>
             <a href="/#contact">견적 요청</a>
             ${site.social.map((s) => `<a href="${esc(s.href)}" target="_blank" rel="noopener noreferrer">${esc(s.label)}</a>`).join('')}
+          </div>
+          <p class="footer__col-title" style="margin-top:var(--space-md)">저널 글</p>
+          <div class="footer__links">
+            ${posts.map((p) => `<a href="/blog/${esc(p.slug)}/">${esc(p.title)}</a>`).join('')}
           </div>
         </div>
       </div>
@@ -282,11 +286,8 @@ function scripts() {
     'ScrollTrigger.min.js',
     'SplitText.min.js',
     'ScrambleTextPlugin.min.js',
-    'Flip.min.js',
-    'Observer.min.js',
-    'InertiaPlugin.min.js',
-    'CustomEase.min.js',
   ]
+  /* Flip·Observer·InertiaPlugin·CustomEase 는 어디서도 쓰지 않아 불러오지 않습니다. */
   return `${vendor.map((f) => `<script src="/assets/js/vendor/${f}" defer></script>`).join('\n  ')}
   <script type="module" src="/assets/js/main.js"></script>`
 }

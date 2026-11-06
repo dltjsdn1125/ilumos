@@ -27,7 +27,23 @@ const D = {
   spin: 30,
 }
 
-export function initMotion() {
+/* 긴 작업이 한 덩어리로 돌면 첫 화면에서 누름 반응이 막힙니다(TBT).
+   요소를 몇 개씩 끊어 처리하고, 사이사이 브라우저에 제어를 돌려줍니다.
+   모양·타이밍은 그대로이고 만드는 순서만 문서 순서대로 조금씩 나뉩니다. */
+const yieldMain = () =>
+  window.scheduler && typeof window.scheduler.yield === 'function'
+    ? window.scheduler.yield()
+    : new Promise((resolve) => setTimeout(resolve, 0))
+
+async function eachChunk(list, fn, size = 4) {
+  const items = Array.from(list)
+  for (let i = 0; i < items.length; i++) {
+    fn(items[i], i)
+    if ((i + 1) % size === 0 && i + 1 < items.length) await yieldMain()
+  }
+}
+
+export async function initMotion() {
   const { gsap } = window
   if (!gsap) {
     console.warn('[motion] GSAP missing — content is already visible, nothing to do')
@@ -38,11 +54,7 @@ export function initMotion() {
   gsap.registerPlugin(
     window.ScrollTrigger,
     window.SplitText,
-    window.ScrambleTextPlugin,
-    window.Flip,
-    window.Observer,
-    window.InertiaPlugin,
-    window.CustomEase
+    window.ScrambleTextPlugin
   )
 
   const ScrollTrigger = window.ScrollTrigger
@@ -63,15 +75,19 @@ export function initMotion() {
   }
 
   heroWarp(gsap, ScrollTrigger)
-  splitReveals(gsap, ScrollTrigger)
-  fadeReveals(gsap, ScrollTrigger)
-  scrambleLabels(gsap, ScrollTrigger)
-  counters(gsap, ScrollTrigger)
-  mediaReveals(gsap, ScrollTrigger)
+  await yieldMain()
+  await splitReveals(gsap, ScrollTrigger)
+  await fadeReveals(gsap, ScrollTrigger)
+  await scrambleLabels(gsap, ScrollTrigger)
+  await counters(gsap, ScrollTrigger)
+  await mediaReveals(gsap, ScrollTrigger)
+  await yieldMain()
   carousel3D(gsap, ScrollTrigger)
   scalingVideo(gsap, ScrollTrigger)
+  await yieldMain()
   logoWall(gsap, ScrollTrigger)
   heroWordCycle(gsap)
+  await yieldMain()
 
   ScrollTrigger.refresh()
 
@@ -185,7 +201,7 @@ function heroWarp(gsap, ScrollTrigger) {
    yPercent 110 -> 0 · 0.8s · expo.out · stagger 0.1 · once · start 'top 80%' */
 
 function splitReveals(gsap, ScrollTrigger) {
-  document.querySelectorAll('[data-split]').forEach((el) => {
+  return eachChunk(document.querySelectorAll('[data-split]'), (el) => {
     const split = new window.SplitText(el, {
       type: 'lines',
       linesClass: 'split-line',
@@ -211,8 +227,8 @@ function splitReveals(gsap, ScrollTrigger) {
 
 /* ── generic block reveal ───────────────────────────────────────────────── */
 
-function fadeReveals(gsap, ScrollTrigger) {
-  document.querySelectorAll('[data-reveal]').forEach((el) => {
+async function fadeReveals(gsap, ScrollTrigger) {
+  await eachChunk(document.querySelectorAll('[data-reveal]'), (el) => {
     const delay = Number(el.dataset.revealDelay || 0)
     el.classList.add('is-revealed')
 
@@ -240,7 +256,7 @@ function fadeReveals(gsap, ScrollTrigger) {
   })
 
   // stagger groups: children animate in sequence, parent is the trigger
-  document.querySelectorAll('[data-reveal-group]').forEach((group) => {
+  await eachChunk(document.querySelectorAll('[data-reveal-group]'), (group) => {
     const kids = Array.from(group.children)
     kids.forEach((k) => k.classList.add('is-revealed'))
 
@@ -269,7 +285,7 @@ function fadeReveals(gsap, ScrollTrigger) {
    "(Our process)" and on the hero keywords. */
 
 function scrambleLabels(gsap, ScrollTrigger) {
-  document.querySelectorAll('[data-scramble]').forEach((el) => {
+  return eachChunk(document.querySelectorAll('[data-scramble]'), (el) => {
     const text = el.dataset.scrambleText || el.textContent.trim()
     el.dataset.scrambleText = text
     el.classList.add('is-revealed')
@@ -297,7 +313,7 @@ function formatCount(value, format) {
 }
 
 function counters(gsap, ScrollTrigger) {
-  document.querySelectorAll('[data-counter]').forEach((el) => {
+  return eachChunk(document.querySelectorAll('[data-counter]'), (el) => {
     const end = Number(el.dataset.counter)
     const format = el.dataset.counterFormat
     // Year counters roll from a nearby value, not from zero — rolling 0→2019 reads as noise.
@@ -324,7 +340,7 @@ function counters(gsap, ScrollTrigger) {
 /* ── media reveal — IMG.ds-mediaimg · 0.6s · power2.out ─────────────────── */
 
 function mediaReveals(gsap, ScrollTrigger) {
-  document.querySelectorAll('[data-media-reveal]').forEach((el) => {
+  return eachChunk(document.querySelectorAll('[data-media-reveal]'), (el) => {
     const img = el.querySelector('img')
 
     gsap.fromTo(

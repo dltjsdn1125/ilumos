@@ -289,6 +289,7 @@
    IBM Plex Sans KR 크기에 맞춰 둬서, 글꼴이 교체될 때 줄이 다시 나뉘지 않습니다. */
 @font-face {
   font-family: 'IBM Plex Sans KR Fallback';
+  font-display: swap;
   src: local('Malgun Gothic'), local('Apple SD Gothic Neo');
   size-adjust: 87.6%;
   ascent-override: 123.9%;

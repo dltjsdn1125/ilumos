@@ -10,6 +10,22 @@ import { initCursor, initHeader, initMenu, initAccordion, initMarquee, markCurre
 import { initMotion } from './motion.js'
 import { initShop } from './shop.js'
 
+/* 모션 준비가 끝나기 전에 ScrollTrigger.refresh 를 여러 번 부르면 같은 계산이
+   겹쳐서 메인 스레드를 오래 잡습니다. 글꼴·로드 알림은 한 번으로 모아서,
+   모션이 다 만들어진 뒤 브라우저가 한가할 때 한 번만 다시 잽니다. */
+let motionReady = Promise.resolve()
+let refreshTimer = 0
+function refreshLater() {
+  clearTimeout(refreshTimer)
+  refreshTimer = setTimeout(() => {
+    motionReady.then(() => {
+      const run = () => window.ScrollTrigger?.refresh()
+      if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 1500 })
+      else run()
+    })
+  }, 250)
+}
+
 function boot() {
   document.documentElement.classList.add('js')
 
@@ -38,7 +54,7 @@ function boot() {
      나머지(분류·장바구니 화면)는 각자 자기 훅이 없으면 즉시 빠져나갑니다. */
   initShop()
 
-  initMotion()
+  motionReady = Promise.resolve(initMotion()).catch(() => {})
 
   // Footer year, kept out of the generated HTML so pages don't go stale.
   document.querySelectorAll('[data-year]').forEach((el) => {
@@ -54,13 +70,11 @@ if (document.readyState === 'loading') {
 
 // Fonts shift line breaks; re-measure once they land so ScrollTrigger positions hold.
 if (document.fonts?.ready) {
-  document.fonts.ready.then(() => window.ScrollTrigger?.refresh())
+  document.fonts.ready.then(refreshLater)
 }
 
 /* Landing straight on an anchor (/#portfolio) jumps the scroller before
    ScrollTrigger has measured anything, which can leave that section stuck at its
    pre-reveal state. A refresh once everything has loaded re-evaluates every
    trigger against the real scroll position and plays whatever is already in view. */
-window.addEventListener('load', () => {
-  window.ScrollTrigger?.refresh()
-}, { once: true })
+window.addEventListener('load', refreshLater, { once: true })
