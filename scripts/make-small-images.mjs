@@ -20,3 +20,8 @@ for (const f of readdirSync(DIR)) {
 
 const og = await sharp(join(DIR, 'og-cover.webp')).resize(1200, 630, { fit: 'cover', position: 'attention' }).webp({ quality: 82, effort: 6 }).toFile(join(DIR, 'og-share.webp'))
 console.log('og-share.webp', og.size)
+
+/* 히어로 숲 사진의 휴대폰용 사본 — 원본(1920×1440)은 그대로 두고 1280×960, 화질 80 으로만 줄입니다. */
+const heroSrc = join(DIR, '..', '..', 'src', 'hero-source', 'hero-forest.jpg')
+const hero = await sharp(heroSrc).resize(1280).webp({ quality: 80, effort: 6 }).toFile(join(DIR, 'hero-forest-1280.webp'))
+console.log('hero-forest-1280.webp', hero.size)

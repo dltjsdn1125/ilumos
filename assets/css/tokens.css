@@ -72,7 +72,7 @@
   --bg-raised: rgba(255, 255, 255, 0.045);
   --ink: var(--white);
   --dim: rgba(255, 255, 255, 0.58);
-  --dimmer: rgba(255, 255, 255, 0.40);
+  --dimmer: rgba(255, 255, 255, 0.50); /* 어두운 바탕에서 글자 대비 4.5:1 이상 */
   --hairline: var(--hairline-white);
   --glass: rgba(6, 6, 12, 0.72);
   --scrim: rgba(0, 0, 0, 0.72);
@@ -101,7 +101,7 @@
   --bg-raised: #ffffff;
   --ink: var(--near-black);
   --dim: rgba(20, 20, 19, 0.64);
-  --dimmer: rgba(20, 20, 19, 0.42);
+  --dimmer: rgba(20, 20, 19, 0.60); /* 밝은 바탕에서 글자 대비 4.5:1 이상 */
   --hairline: rgba(20, 20, 19, 0.16);
   --glass: rgba(250, 249, 245, 0.72);
   --media-placeholder: rgba(20, 20, 19, 0.07);

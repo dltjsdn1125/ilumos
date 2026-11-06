@@ -320,6 +320,16 @@ await writeFile(
 
 await writeFile(join(ROOT, 'assets', 'css', 'starfield.css'), starfieldCss(), 'utf8')
 
+/* ── CSS 한 파일로 묶기 ─────────────────────────────────────────────────────
+   화면을 그리기 전에 기다리는 CSS 요청을 10개에서 1개로 줄입니다. 순서는 예전 <link>
+   순서(fonts → lenis → tokens → base → starfield → components → sections → pages → shop)
+   그대로라 적용 우선순위가 같습니다. 조각 파일은 그대로 두고 site.css 만 새로 만듭니다. */
+const cssParts = ['fonts', 'lenis', 'tokens', 'base', 'starfield', 'components', 'sections', 'pages', 'shop']
+const cssBundle = (
+  await Promise.all(cssParts.map((n) => readFile(join(ROOT, 'assets', 'css', `${n}.css`), 'utf8')))
+).join('\n')
+await writeFile(join(ROOT, 'assets', 'css', 'site.css'), cssBundle, 'utf8')
+
 /* ── web app manifest ───────────────────────────────────────────────────── */
 
 await writeFile(

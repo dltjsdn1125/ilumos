@@ -17,8 +17,7 @@ function fonts() {
   // 조각 파일과 @font-face 는 scripts/self-host-fonts.mjs 가 만들고(assets/css/fonts.css),
   // 한글은 unicode-range 로 쪼개져 있어 페이지에 나온 글자의 조각만 내려옵니다.
   // 모든 @font-face 는 font-display: swap, 대체 글꼴은 tokens.css 의 'IBM Plex Sans KR Fallback'.
-  return `<link rel="preload" href="/assets/fonts/ibm-plex-sans-kr-400-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/assets/css/fonts.css">`
+  return `<link rel="preload" href="/assets/fonts/ibm-plex-sans-kr-400-latin.woff2" as="font" type="font/woff2" crossorigin>`
 }
 
 function jsonLd(page) {
@@ -104,16 +103,10 @@ function head(page) {
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/favicon.svg">
   <link rel="manifest" href="/site.webmanifest">
-  ${page.path === '/' ? '<link rel="preload" as="image" href="/assets/images/hero-forest.webp" type="image/webp" fetchpriority="high">' : ''}
+  ${page.path === '/' ? `<link rel="preload" as="image" href="/assets/images/hero-forest-1280.webp" type="image/webp" media="(max-width: 820px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/assets/images/hero-forest.webp" type="image/webp" media="(min-width: 821px)" fetchpriority="high">` : ''}
   ${fonts()}
-  <link rel="stylesheet" href="/assets/css/lenis.css">
-  <link rel="stylesheet" href="/assets/css/tokens.css">
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/starfield.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/sections.css">
-  <link rel="stylesheet" href="/assets/css/pages.css">
-  <link rel="stylesheet" href="/assets/css/shop.css">
+  <link rel="stylesheet" href="/assets/css/site.css">
   ${jsonLd(page)}`
 }
 
